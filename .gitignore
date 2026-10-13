@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+artifacts/
+cache/
+out/
+cache_hardhat/
+.hh-cache/
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temporary
+tmp/
+temp/
+
+# Sensitive
+deployed-addresses.json
