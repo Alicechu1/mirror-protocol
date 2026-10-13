@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIRROR Protocol Suite — Demo</title>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0a0f;
+    color: #e8e8ec;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #0f0f1a, #1a1a2e);
+    border-bottom: 1px solid #2a2a3a;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  .logo-text h1 {
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .logo-text p {
+    font-size: 11px;
+    color: #888;
+  }
+
+  .wallet-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    transition: transform 0.2s;
+  }
+  .wallet-btn:hover { transform: translateY(-1px); }
+  .wallet-btn.connected { background: #10b981; }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px;
+  }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .hero h2 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero p {
+    color: #888;
+    font-size: 16px;
+  }
+
+  .steps-nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+
+  .step-btn {
+    background: #1a1a2a;
+    border: 1px solid #2a2a3a;
+    color: #888;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .step-btn.active {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.1));
+    border-color: #667eea;
+    color: #fff;
+  }
+  .step-btn.done {
+    border-color: #10b981;
+    color: #6ee7b7;
+  }
+
+  .panel {
+    background: #14141f;
+    border: 1px solid #2a2a3a;
+    border-radius: 14px;
+    padding: 30px;
+    display: none;
+  }
+  .panel.active { display: block; }
+
+  .panel h3 {
+    font-size: 22px;
+    margin-bottom: 8px;
+    color: #fff;
+  }
+
+  .panel-desc {
+    color: #888;
+    margin-bottom: 24px;
+    font-size: 14px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #d0d0e0;
+  }
+
+  .form-group .hint {
+    color: #666;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .slider-row input[type="range"] {
+    flex: 1;
+    accent-color: #667eea;
+  }
+
+  .slider-value {
+    min-width: 60px;
+    text-align: right;
+    font-weight: 700;
+    color: #667eea;
+    font-size: 14px;
+  }
+
+  .toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #222230;
+  }
+  .toggle-row:last-child { border-bottom: none; }
+
+  .toggle {
+    position: relative;
+    width: 48px;
+    height: 26px;
+    background: #2a2a3a;
+    border-radius: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .toggle.on { background: #10b981; }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: left 0.2s;
+  }
+  .toggle.on::after { left: 25px; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 15px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-secondary {
+    background: #1a1a2a;
+    color: #d0d0e0;
+    border: 1px solid #2a2a3a;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover {
+    border-color: #667eea;
+    color: #fff;
+  }
+
+  .status-box {
+    background: #0f0f18;
+    border: 1px solid #2a2a3a;
+    border-radius: 10px;
+    padding: 16px;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+
+  .status-box.success {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.06);
+  }
+
+  .status-box.error {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.06);
+  }
+
+  .status-box.warning {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.06);
+  }
+
+  .status-title {
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #fff;
+  }
+
+  .hash-text {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #667eea;
+    word-break: break-all;
+  }
+
+  /* Conflict modal */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: #14141f;
+    border: 1px solid #f59e0b;
+    border-radius: 16px;
+    padding: 30px;
+    max-width: 500px;
+    width: 100%;
+  }
+
+  .modal h3 {
+    color: #fbbf24;
+    font-size: 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .conflict-item {
+    background: rgba(251, 191, 36, 0.08);
+    border-left: 3px solid #f59e0b;
+    padding: 12px 14px;
+    margin: 10px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+  }
+
+  .conflict-label {
+    font-weight: 600;
+    color: #fbbf24;
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  .modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .modal-buttons button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-size: 14px;
+  }
+  .btn-ghost {
+    background: #1a1a2a;
+    color: #888;
+  }
+  .btn-danger {
+    background: #ef4444;
+    color: white;
+  }
+
+  /* Activity log */
+  .activity-log {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 16px;
+  }
+
+  .activity-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    border-bottom: 1px solid #222230;
+    font-size: 13px;
+  }
+
+  .activity-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .activity-dot.authorized { background: #10b981; }
+  .activity-dot.conflict { background: #f59e0b; }
+  .activity-dot.blocked { background: #ef4444; }
+
+  .activity-content { flex: 1; }
+  .activity-action { font-weight: 600; color: #fff; }
+  .activity-result { font-size: 12px; color: #888; margin-top: 2px; }
+  .activity-time { font-size: 11px; color: #666; margin-top: 2px; }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 700px) {
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+
+  .stat-card {
+    background: #0f0f18;
+    border: 1px solid #2a2a3a;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-number {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+  }
+
+  .simulation-note {
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px dashed #f59e0b;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 12px;
+    color: #fbbf24;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">🔮</div>
+    <div class="logo-text">
+      <h1>MIRROR Protocol Suite</h1>
+      <p>AI Safety & Agent Alignment Protocol</p>
+    </div>
+  </div>
+  <button class="wallet-btn" id="walletBtn" onclick="connectWallet()">Connect Wallet</button>
+</div>
+
+<div class="container">
+
+  <div class="hero">
+    <h2>Agent Alignment, Moved to the Protocol Layer</h2>
+    <p>From "trusting the model" to "verifying behavior" — built on Monad</p>
+  </div>
+
+  <div class="steps-nav">
+    <button class="step-btn active" onclick="showStep(1)" id="step1">1. Connect Wallet</button>
+    <button class="step-btn" onclick="showStep(2)" id="step2">2. Persona Baseline</button>
+    <button class="step-btn" onclick="showStep(3)" id="step3">3. Register Agent</button>
+    <button class="step-btn" onclick="showStep(4)" id="step4">4. Trade & Verify</button>
+    <button class="step-btn" onclick="showStep(5)" id="step5">5. Activity Log</button>
+  </div>
+
+  <!-- Step 1: Wallet -->
+  <div class="panel active" id="panel1">
+    <h3>Step 1: Connect Wallet</h3>
+    <p class="panel-desc">Connect your wallet to interact with the MIRROR protocol on Monad testnet.</p>
+
+    <div class="simulation-note">
+      ⚡ Demo mode: No wallet? No problem. Click "Simulate Demo" to experience the full flow with mock data.
+    </div>
+
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <button class="btn-primary" style="flex: 1; min-width: 200px;" onclick="connectWallet()">
+        Connect MetaMask
+      </button>
+      <button class="btn-secondary" style="flex: 1; min-width: 200px;" onclick="startSimulation()">
+        Simulate Demo
+      </button>
+    </div>
+
+    <div class="status-box" id="walletStatus" style="display: none;">
+      <div class="status-title">✓ Wallet Connected</div>
+      <div class="hash-text" id="walletAddress"></div>
+      <div style="margin-top: 8px; font-size: 12px; color: #888;">
+        Network: <span id="networkName">Monad Testnet</span>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px;">
+      <h4 style="margin-bottom: 12px; color: #d0d0e0;">Deployed Contracts (Monad Testnet)</h4>
+      <div style="font-size: 13px; line-height: 2;">
+        <div><strong style="color: #888;">PersonaBaseline:</strong> <span class="hash-text" id="addr1">0x6eFE4b72F01Fde571C4Ed4c05EDe910F2f9E1435</span></div>
+        <div><strong style="color: #888;">AgentRegistry:</strong> <span class="hash-text" id="addr2">0x4F464CD9Fa81ECC19366AA382266b10e2A2C1443</span></div>
+        <div><strong style="color: #888;">ActionAttestor:</strong> <span class="hash-text" id="addr3">0xbE8af04d2dae81eb4bd9Bc2aA64303520d324146</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Persona Baseline -->
+  <div class="panel" id="panel2">
+    <h3>Step 2: Set Your Persona Baseline</h3>
+    <p class="panel-desc">
+      Define your trading values and boundaries. This baseline will be hashed and stored on-chain.
+      Raw data stays on your device — only the commitment hash goes on-chain.
+    </p>
+
+    <div class="grid-2">
+      <div>
+        <div class="form-group">
+          <label>Risk Tolerance</label>
+          <div class="slider-row">
+            <input type="range" id="riskTolerance" min="1" max="10" value="5">
+            <span class="slider-value" id="riskVal">5/10</span>
+          </div>
+          <div class="hint">How much risk are you comfortable with?</div>
+        </div>
+
+        <div class="form-group">
+          <label>Max Daily Loss (%)</label>
+          <div class="slider-row">
+            <input type="range" id="dailyLoss" min="1" max="20" value="5">
+            <span class="slider-value" id="lossVal">5%</span>
+          </div>
+          <div class="hint">Maximum loss allowed in a single day</div>
+        </div>
+
+        <div class="form-group">
+          <label>Position Concentration Limit (%)</label>
+          <div class="slider-row">
+            <input type="range" id="concentration" min="10" max="100" value="30" step="5">
+            <span class="slider-value" id="concVal">30%</span>
+          </div>
+          <div class="hint">Maximum % of portfolio in a single asset</div>
+        </div>
+      </div>
+
+      <div>
+        <label style="font-weight: 600; font-size: 14px; display: block; margin-bottom: 10px;">Asset Categories Allowed</label>
+        <div class="toggle-row">
+          <span>Spot Trading</span>
+          <div class="toggle on" onclick="toggleSwitch(this)" data-key="spot"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Futures / Leverage</span>
+          <div class="toggle" onclick="toggleSwitch(this)" data-key="futures"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Options</span>
+          <div class="toggle" onclick="toggleSwitch(this)" data-key="options"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Stablecoin Yield</span>
+          <div class="toggle on" onclick="toggleSwitch(this)" data-key="stablecoin"></div>
+        </div>
+        <div class="toggle-row">
+          <span>DeFi Protocols</span>
+          <div class="toggle on" onclick="toggleSwitch(this)" data-key="defi"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Meme / New Tokens</span>
+          <div class="toggle" onclick="toggleSwitch(this)" data-key="meme"></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary" style="margin-top: 24px;" onclick="registerBaseline()">
+      Register Baseline On-Chain
+    </button>
+
+    <div class="status-box success" id="baselineStatus" style="display: none;">
+      <div class="status-title">✓ Baseline Registered</div>
+      <div style="font-size: 12px; color: #888; margin-bottom: 4px;">Commitment hash:</div>
+      <div class="hash-text" id="baselineHash"></div>
+    </div>
+  </div>
+
+  <!-- Step 3: Register Agent -->
+  <div class="panel" id="panel3">
+    <h3>Step 3: Register Your Agent</h3>
+    <p class="panel-desc">
+      Create your first AI trading agent. The agent must inherit your persona baseline before it can act.
+      This ensures safety constraints are passed from you to your agent.
+    </p>
+
+    <div class="form-group">
+      <label>Agent Name</label>
+      <input type="text" id="agentName" value="TradingAgent-01" style="width: 100%; padding: 12px; background: #0f0f18; border: 1px solid #2a2a3a; border-radius: 8px; color: #fff; font-size: 14px;">
+    </div>
+
+    <div class="form-group">
+      <label>Agent Address</label>
+      <input type="text" id="agentAddress" placeholder="0x..." style="width: 100%; padding: 12px; background: #0f0f18; border: 1px solid #2a2a3a; border-radius: 8px; color: #fff; font-size: 13px; font-family: monospace;">
+      <div class="hint">The address of your agent contract or EOA</div>
+    </div>
+
+    <div class="status-box" id="agentBaselineInfo">
+      <div class="status-title">📋 Baseline to Inherit</div>
+      <div style="font-size: 12px; color: #888; margin-bottom: 4px;">Your active baseline hash:</div>
+      <div class="hash-text" id="inheritHash">Not registered yet</div>
+    </div>
+
+    <button class="btn-primary" onclick="registerAgent()">
+      Register Agent (Generation 1)
+    </button>
+
+    <div class="status-box success" id="agentStatus" style="display: none;">
+      <div class="status-title">✓ Agent Registered</div>
+      <div style="font-size: 13px; color: #d0d0e0;">
+        Generation: <strong id="agentGen">1</strong><br>
+        Status: <strong style="color: #10b981;">Authorized</strong>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #2a2a3a;">
+      <h4 style="margin-bottom: 12px; color: #d0d0e0;">🧬 Cross-Generation Inheritance</h4>
+      <p style="font-size: 13px; color: #888; margin-bottom: 12px;">
+        When your agent creates a next-generation agent, it must pass along the same baseline hash.
+        This is how MIRROR solves the recursive self-improvement safety problem.
+      </p>
+      <button class="btn-secondary" onclick="registerGen2()">
+        Create Second-Generation Agent
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 4: Trade & Verify -->
+  <div class="panel" id="panel4">
+    <h3>Step 4: Agent Action Verification</h3>
+    <p class="panel-desc">
+      Watch your agent propose trades and see how MIRROR verifies each action against your baseline.
+      If an action violates your constraints, the conflict is presented to you — you decide.
+    </p>
+
+    <div class="grid-2" style="margin-bottom: 20px;">
+      <div class="stat-card">
+        <div class="stat-number" id="statAuthorized">0</div>
+        <div class="stat-label">Authorized Actions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="statBlocked">0</div>
+        <div class="stat-label">Blocked / Conflicts</div>
+      </div>
+    </div>
+
+    <h4 style="margin-bottom: 12px; color: #d0d0e0;">Propose a Trade Action</h4>
+
+    <div class="form-group">
+      <label>Action Type</label>
+      <select id="actionType" onchange="updateActionPreview()" style="width: 100%; padding: 12px; background: #0f0f18; border: 1px solid #2a2a3a; border-radius: 8px; color: #fff; font-size: 14px;">
+        <option value="buy_spot">Buy ETH (Spot)</option>
+        <option value="buy_futures">Open BTC Long (10x Futures)</option>
+        <option value="buy_meme">Buy PEPE (Meme Coin)</option>
+        <option value="supply_stable">Supply USDC to Aave</option>
+        <option value="sell_spot">Sell ETH (Spot)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Amount (USD)</label>
+      <div class="slider-row">
+        <input type="range" id="tradeAmount" min="100" max="10000" value="1000" step="100">
+        <span class="slider-value" id="amountVal">$1,000</span>
+      </div>
+    </div>
+
+    <div class="status-box" id="previewBox">
+      <div class="status-title">🔍 Baseline Check Preview</div>
+      <div style="font-size: 13px; color: #d0d0e0;" id="previewText">Select an action to see if it passes your baseline...</div>
+    </div>
+
+    <button class="btn-primary" onclick="executeAction()">
+      Execute Agent Action
+    </button>
+  </div>
+
+  <!-- Step 5: Activity Log -->
+  <div class="panel" id="panel5">
+    <h3>Step 5: On-Chain Activity Log</h3>
+    <p class="panel-desc">
+      Every agent action is attested on-chain. Non-tamperable. Non-hideable. Auditable.
+      This is Layer 5: the non-repudiation layer.
+    </p>
+
+    <div class="grid-2" style="margin-bottom: 20px;">
+      <div class="stat-card">
+        <div class="stat-number" id="totalAttestations">0</div>
+        <div class="stat-label">Total Attestations</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="verificationRate">0%</div>
+        <div class="stat-label">Verification Pass Rate</div>
+      </div>
+    </div>
+
+    <h4 style="margin-bottom: 12px; color: #d0d0e0;">Recent Activity</h4>
+    <div class="activity-log" id="activityLog">
+      <div style="text-align: center; color: #666; padding: 30px; font-size: 13px;">
+        No actions yet. Execute some trades to see the log.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Conflict Modal -->
+<div class="modal-overlay" id="conflictModal">
+  <div class="modal">
+    <h3>⚠️ Value Conflict Detected</h3>
+    <p style="color: #d0d0e0; font-size: 14px; margin-bottom: 12px;">
+      Your agent wants to execute this action, but it conflicts with your persona baseline:
+    </p>
+
+    <div class="conflict-item">
+      <div class="conflict-label">YOUR INSTRUCTION</div>
+      <div id="conflictInstruction">Buy 10x BTC futures</div>
+    </div>
+
+    <div class="conflict-item">
+      <div class="conflict-label">BASELINE CONFLICT</div>
+      <div id="conflictReason">Your baseline does not allow futures/leverage trading</div>
+    </div>
+
+    <div class="conflict-item">
+      <div class="conflict-label">POSSIBLE MOTIVATION</div>
+      <div id="conflictMotivation">You may be seeking higher returns than your baseline allows, or you may have misstated your risk preference.</div>
+    </div>
+
+    <div class="conflict-item">
+      <div class="conflict-label">WHAT MIRROR SUGGESTS</div>
+      <div>Consider adjusting either your instruction or your baseline. MIRROR presents the conflict — you decide.</div>
+    </div>
+
+    <div class="modal-buttons">
+      <button class="btn-ghost" onclick="closeConflict('adjust')">Adjust baseline</button>
+      <button class="btn-ghost" onclick="closeConflict('cancel')">Cancel action</button>
+      <button class="btn-danger" onclick="closeConflict('override')">Proceed anyway</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ State ============
+let walletConnected = false;
+let walletAddress = '';
+let isSimulating = false;
+let currentStep = 1;
+let baselineHash = null;
+let agentRegistered = false;
+let activity = [];
+let authorizedCount = 0;
+let blockedCount = 0;
+
+// Baseline settings
+let baselineSettings = {
+  riskTolerance: 5,
+  dailyLoss: 5,
+  concentration: 30,
+  spot: true,
+  futures: false,
+  options: false,
+  stablecoin: true,
+  defi: true,
+  meme: false
+};
+
+// Contract ABIs (minimal for demo)
+const PERSONA_BASELINE_ABI = [
+  "function registerBaseline(bytes32, string) external",
+  "function getBaselineHash(address) view returns (bytes32)",
+  "function hasActiveBaseline(address) view returns (bool)"
+];
+
+const AGENT_REGISTRY_ABI = [
+  "function registerAgent(address, bytes32) external",
+  "function isAgentAuthorized(address) view returns (bool)",
+  "function getAgentGeneration(address) view returns (uint256)"
+];
+
+const ACTION_ATTESTOR_ABI = [
+  "function attestAction(bytes32, bytes32, bool, string) external returns (uint256)",
+  "function getAttestationCount() view returns (uint256)"
+];
+
+// Contract addresses - deployed on Monad Testnet
+const CONTRACT_ADDRESSES = {
+  personaBaseline: '0x6eFE4b72F01Fde571C4Ed4c05EDe910F2f9E1435',
+  agentRegistry: '0x4F464CD9Fa81ECC19366AA382266b10e2A2C1443',
+  actionAttestor: '0xbE8af04d2dae81eb4bd9Bc2aA64303520d324146'
+};
+
+let provider, signer, baselineContract, registryContract, attestorContract;
+
+// ============ UI Helpers ============
+function showStep(n) {
+  // You can only go to steps you've unlocked
+  if (n > currentStep) return;
+  
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('panel' + i).classList.remove('active');
+    document.getElementById('step' + i).classList.remove('active');
+  }
+  document.getElementById('panel' + n).classList.add('active');
+  document.getElementById('step' + n).classList.add('active');
+}
+
+function unlockStep(n) {
+  if (n > currentStep) {
+    currentStep = n;
+    document.getElementById('step' + n).classList.add('done');
+  }
+}
+
+function toggleSwitch(el, key) {
+  el.classList.toggle('on');
+  const isOn = el.classList.contains('on');
+  if (key) baselineSettings[key] = isOn;
+  updateActionPreview();
+}
+
+// Sliders
+document.getElementById('riskTolerance').addEventListener('input', e => {
+  baselineSettings.riskTolerance = parseInt(e.target.value);
+  document.getElementById('riskVal').textContent = e.target.value + '/10';
+  updateActionPreview();
+});
+document.getElementById('dailyLoss').addEventListener('input', e => {
+  baselineSettings.dailyLoss = parseInt(e.target.value);
+  document.getElementById('lossVal').textContent = e.target.value + '%';
+  updateActionPreview();
+});
+document.getElementById('concentration').addEventListener('input', e => {
+  baselineSettings.concentration = parseInt(e.target.value);
+  document.getElementById('concVal').textContent = e.target.value + '%';
+  updateActionPreview();
+});
+document.getElementById('tradeAmount').addEventListener('input', e => {
+  document.getElementById('amountVal').textContent = '$' + parseInt(e.target.value).toLocaleString();
+});
+
+// ============ Wallet ============
+async function connectWallet() {
+  if (typeof window.ethereum === 'undefined') {
+    alert('MetaMask not found. Click "Simulate Demo" to try without a wallet.');
+    return;
+  }
+  
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    walletAddress = accounts[0];
+    walletConnected = true;
+    
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+    
+    // Initialize contracts if addresses are set
+    if (CONTRACT_ADDRESSES.personaBaseline) {
+      baselineContract = new ethers.Contract(CONTRACT_ADDRESSES.personaBaseline, PERSONA_BASELINE_ABI, signer);
+      registryContract = new ethers.Contract(CONTRACT_ADDRESSES.agentRegistry, AGENT_REGISTRY_ABI, signer);
+      attestorContract = new ethers.Contract(CONTRACT_ADDRESSES.actionAttestor, ACTION_ATTESTOR_ABI, signer);
+    }
+    
+    updateWalletUI();
+    unlockStep(2);
+  } catch (e) {
+    console.error(e);
+    alert('Failed to connect wallet: ' + e.message);
+  }
+}
+
+function updateWalletUI() {
+  const btn = document.getElementById('walletBtn');
+  btn.classList.add('connected');
+  btn.textContent = walletAddress.substring(0, 6) + '...' + walletAddress.substring(38);
+  
+  document.getElementById('walletStatus').style.display = 'block';
+  document.getElementById('walletAddress').textContent = walletAddress;
+}
+
+function startSimulation() {
+  isSimulating = true;
+  walletAddress = '0x742d35Cc6634C0532925a3b844Bc9e7595f5bAd1'; // demo address
+  walletConnected = true;
+  
+  updateWalletUI();
+  unlockStep(2);
+  showStep(2);
+  
+  // Generate demo contract addresses
+  document.getElementById('addr1').textContent = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0';
+  document.getElementById('addr2').textContent = '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9';
+  document.getElementById('addr3').textContent = '0xDc64a140Aa3E981100a95342a0f83e3521Fe7A7f';
+}
+
+// ============ Baseline ============
+async function registerBaseline() {
+  if (!walletConnected) {
+    alert('Please connect wallet or start simulation first.');
+    return;
+  }
+  
+  // Compute a hash of the baseline settings
+  const baselineData = JSON.stringify(baselineSettings);
+  const hash = '0x' + simpleHash(baselineData);
+  baselineHash = hash;
+  
+  if (isSimulating) {
+    // Simulate on-chain registration
+    await sleep(1000);
+  } else if (baselineContract) {
+    try {
+      const tx = await baselineContract.registerBaseline(hash, '');
+      await tx.wait();
+    } catch (e) {
+      alert('Transaction failed: ' + e.message);
+      return;
+    }
+  } else {
+    alert('Contract not deployed. Please deploy first or use simulation mode.');
+    return;
+  }
+  
+  document.getElementById('baselineStatus').style.display = 'block';
+  document.getElementById('baselineHash').textContent = hash;
+  document.getElementById('inheritHash').textContent = hash;
+  
+  // Generate a random agent address for demo
+  document.getElementById('agentAddress').value = '0x' + simpleHash('agent-' + Date.now()).substring(0, 40);
+  
+  unlockStep(3);
+  showStep(3);
+}
+
+// ============ Agent ============
+async function registerAgent() {
+  if (!baselineHash) {
+    alert('Please register your baseline first.');
+    return;
+  }
+  
+  const agentAddr = document.getElementById('agentAddress').value;
+  if (!agentAddr || !agentAddr.startsWith('0x')) {
+    alert('Please enter a valid agent address.');
+    return;
+  }
+  
+  if (isSimulating) {
+    await sleep(800);
+  } else if (registryContract) {
+    try {
+      const tx = await registryContract.registerAgent(agentAddr, baselineHash);
+      await tx.wait();
+    } catch (e) {
+      alert('Transaction failed: ' + e.message);
+      return;
+    }
+  }
+  
+  agentRegistered = true;
+  document.getElementById('agentStatus').style.display = 'block';
+  document.getElementById('agentGen').textContent = '1';
+  
+  unlockStep(4);
+  showStep(4);
+  updateActionPreview();
+}
+
+async function registerGen2() {
+  alert('Second-generation agent created!\n\nIn a real deployment, this agent would be created by the first agent itself, inheriting the same baseline hash. This is how safety is preserved across recursive self-improvement cycles.');
+}
+
+// ============ Actions ============
+function updateActionPreview() {
+  const actionType = document.getElementById('actionType').value;
+  const amount = parseInt(document.getElementById('tradeAmount').value);
+  const preview = document.getElementById('previewText');
+  const previewBox = document.getElementById('previewBox');
+  
+  const result = checkAgainstBaseline(actionType, amount);
+  
+  if (result.pass) {
+    previewBox.className = 'status-box success';
+    preview.innerHTML = '<span style="color: #10b981; font-weight: 600;">✓ PASSES BASELINE</span><br>' + result.reason;
+  } else if (result.conflict) {
+    previewBox.className = 'status-box warning';
+    preview.innerHTML = '<span style="color: #f59e0b; font-weight: 600;">⚠️ CONFLICT DETECTED</span><br>' + result.reason;
+  } else {
+    previewBox.className = 'status-box error';
+    preview.innerHTML = '<span style="color: #ef4444; font-weight: 600;">✗ BLOCKED</span><br>' + result.reason;
+  }
+}
+
+function checkAgainstBaseline(actionType, amount) {
+  // Portfolio size for demo purposes
+  const portfolioSize = 10000;
+  const pctOfPortfolio = (amount / portfolioSize) * 100;
+  
+  switch(actionType) {
+    case 'buy_spot':
+      if (!baselineSettings.spot) {
+        return { pass: false, conflict: false, reason: 'Spot trading is disabled in your baseline' };
+      }
+      if (pctOfPortfolio > baselineSettings.concentration) {
+        return { pass: false, conflict: true, reason: `Position size (${pctOfPortfolio.toFixed(1)}%) exceeds your concentration limit (${baselineSettings.concentration}%)` };
+      }
+      return { pass: true, reason: 'Spot trade within baseline limits' };
+    
+    case 'buy_futures':
+      if (!baselineSettings.futures) {
+        return { pass: false, conflict: true, reason: 'Futures/leverage trading is not allowed in your baseline. Your risk tolerance may not match this action.' };
+      }
+      return { pass: true, reason: 'Futures trade allowed by baseline' };
+    
+    case 'buy_meme':
+      if (!baselineSettings.meme) {
+        return { pass: false, conflict: true, reason: 'Meme coin trading is disabled. Your baseline prioritizes established assets.' };
+      }
+      return { pass: true, reason: 'Meme coin trade allowed' };
+    
+    case 'supply_stable':
+      if (!baselineSettings.stablecoin) {
+        return { pass: false, conflict: false, reason: 'Stablecoin yield is disabled' };
+      }
+      return { pass: true, reason: 'Stablecoin yield within baseline parameters' };
+    
+    case 'sell_spot':
+      if (!baselineSettings.spot) {
+        return { pass: false, conflict: false, reason: 'Spot trading is disabled' };
+      }
+      return { pass: true, reason: 'Sell order within baseline' };
+    
+    default:
+      return { pass: true, reason: 'Action approved' };
+  }
+}
+
+async function executeAction() {
+  if (!agentRegistered) {
+    alert('Please register an agent first.');
+    return;
+  }
+  
+  const actionType = document.getElementById('actionType').value;
+  const amount = parseInt(document.getElementById('tradeAmount').value);
+  const result = checkAgainstBaseline(actionType, amount);
+  
+  const actionLabels = {
+    buy_spot: 'Buy ETH (Spot)',
+    buy_futures: 'Open BTC Long (10x Futures)',
+    buy_meme: 'Buy PEPE (Meme Coin)',
+    supply_stable: 'Supply USDC to Aave',
+    sell_spot: 'Sell ETH (Spot)'
+  };
+  
+  const actionLabel = actionLabels[actionType];
+  const actionHash = '0x' + simpleHash(actionType + amount + Date.now());
+  const zkProofHash = '0x' + simpleHash('zk-proof-' + actionType);
+  
+  if (result.conflict) {
+    // Show conflict modal
+    document.getElementById('conflictInstruction').textContent = actionLabel + ' ($' + amount.toLocaleString() + ')';
+    document.getElementById('conflictReason').textContent = result.reason;
+    document.getElementById('conflictModal').classList.add('active');
+    
+    // Store pending action
+    window.pendingAction = { actionType, amount, actionLabel, actionHash, zkProofHash };
+    return;
+  }
+  
+  await attestAction(actionLabel, actionHash, zkProofHash, result.pass, result.pass ? 'authorized' : 'blocked');
+}
+
+function closeConflict(choice) {
+  document.getElementById('conflictModal').classList.remove('active');
+  
+  const p = window.pendingAction;
+  if (!p) return;
+  
+  if (choice === 'cancel') {
+    // Attest as conflict
+    attestAction(p.actionLabel, p.actionHash, p.zkProofHash, false, 'conflict');
+  } else if (choice === 'override') {
+    // User overrides - attest as authorized (user accepted risk)
+    attestAction(p.actionLabel + ' (user override)', p.actionHash, p.zkProofHash, true, 'authorized');
+  } else {
+    // Adjust baseline - just note it
+    alert('In a full implementation, this would take you to the baseline settings to adjust your preferences.');
+    attestAction(p.actionLabel, p.actionHash, p.zkProofHash, false, 'conflict');
+  }
+}
+
+async function attestAction(actionLabel, actionHash, zkProofHash, isVerified, result) {
+  if (isSimulating) {
+    await sleep(600);
+  } else if (attestorContract) {
+    try {
+      const tx = await attestorContract.attestAction(actionHash, zkProofHash, isVerified, result);
+      await tx.wait();
+    } catch (e) {
+      // Continue even if tx fails in demo
+      console.error(e);
+    }
+  }
+  
+  // Update stats
+  if (result === 'authorized') {
+    authorizedCount++;
+    document.getElementById('statAuthorized').textContent = authorizedCount;
+  } else {
+    blockedCount++;
+    document.getElementById('statBlocked').textContent = blockedCount;
+  }
+  
+  // Add to activity
+  const now = new Date();
+  activity.unshift({
+    action: actionLabel,
+    result: result,
+    hash: actionHash,
+    time: now.toLocaleTimeString()
+  });
+  
+  // Update stats
+  const total = authorizedCount + blockedCount;
+  document.getElementById('totalAttestations').textContent = total;
+  const rate = total > 0 ? Math.round((authorizedCount / total) * 100) : 0;
+  document.getElementById('verificationRate').textContent = rate + '%';
+  
+  // Render activity log
+  renderActivity();
+  
+  unlockStep(5);
+}
+
+function renderActivity() {
+  const log = document.getElementById('activityLog');
+  if (activity.length === 0) {
+    log.innerHTML = '<div style="text-align: center; color: #666; padding: 30px; font-size: 13px;">No actions yet.</div>';
+    return;
+  }
+  
+  log.innerHTML = activity.map(a => `
+    <div class="activity-item">
+      <div class="activity-dot ${a.result}"></div>
+      <div class="activity-content">
+        <div class="activity-action">${a.action}</div>
+        <div class="activity-result">Result: <strong style="color: ${a.result === 'authorized' ? '#10b981' : a.result === 'conflict' ? '#f59e0b' : '#ef4444'}">${a.result.toUpperCase()}</strong></div>
+        <div class="activity-time">${a.time} · ${a.hash.substring(0, 18)}...</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============ Utils ============
+function simpleHash(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  // Make it look like a keccak hash
+  let hex = Math.abs(hash).toString(16).padStart(8, '0');
+  // Pad to 64 chars (keccak256 length)
+  for (let i = 0; i < 56; i++) {
+    hex += Math.floor(Math.random() * 16).toString(16);
+  }
+  return hex;
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Initialize
+updateActionPreview();
+</script>
+
+</body>
+</html>
