@@ -6,7 +6,9 @@
 <title>MIRROR Protocol Suite — Demo</title>
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/snarkjs@0.7.6/build/snarkjs.min.js"></script>
+<script src="dynamic-sdk.bundle.js"></script>
 <script type="module" src="mera-integration.js"></script>
+<script type="module" src="dynamic-integration.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -84,6 +86,21 @@
   }
   .mera-btn:hover { transform: translateY(-1px); }
   .mera-btn.connected { background: #10b981; }
+
+  .dynamic-btn {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+    transition: transform 0.2s;
+    margin-right: 8px;
+  }
+  .dynamic-btn:hover { transform: translateY(-1px); }
+  .dynamic-btn.connected { background: #10b981; }
 
   .container {
     max-width: 1100px;
@@ -579,6 +596,7 @@
   </div>
   <div>
     <button class="mera-btn" id="meraBtn" onclick="onMeraClick()">🔐 Passkey Login</button>
+    <button class="dynamic-btn" id="dynamicBtn" onclick="toggleDynamicMenu()">🔐 Dynamic Wallet</button>
     <button class="wallet-btn" id="walletBtn" onclick="connectWallet()">Connect Wallet</button>
   </div>
 </div>

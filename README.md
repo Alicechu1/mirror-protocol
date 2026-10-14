@@ -162,6 +162,60 @@ Open the [**Live Demo**](https://alicechu1.github.io/mirror-protocol/) → click
 
 ---
 
+## 🔐 Dynamic Wallet — MPC Embedded Wallet Integration
+
+**Track 04 Integration — Dynamic.xyz ($5,000 Bounty)**
+
+### One Wallet, Every Login Method
+
+MIRROR integrates **Dynamic's embedded wallet infrastructure** to give agents and users frictionless onchain identity — no seed phrases, no browser extensions required. Powered by MPC/TSS (threshold signature scheme), the private key is never assembled in one place, even during signing.
+
+### How It Works
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Dynamic Wallet                        │
+│  ┌──────────┐  ┌───────────┐  ┌─────────────────────┐  │
+│  │ Email OTP│  │  Passkey  │  │  External Wallets    │  │
+│  │  Login   │  │  (WebAuthn)│  │  MetaMask, etc.     │  │
+│  └────┬─────┘  └─────┬─────┘  └──────────┬──────────┘  │
+│       └───────────┬───┴──────────────────┘              │
+│                   ▼                                      │
+│         ┌──────────────────┐                            │
+│         │  MPC/TSS Wallet  │ ← Key never assembled     │
+│         │  (Non-custodial) │   Sub-second signing      │
+│         └────────┬─────────┘                            │
+│                  ▼                                      │
+│         Agent Identity on Monad                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Key Features
+
+- **🔑 Passkey Login** — WebAuthn-powered, biometric auth, no passwords
+- **📧 Email OTP** — One-click magic link style onboarding
+- **👛 External Wallets** — MetaMask, WalletConnect, and 300+ wallets
+- **🔒 MPC/TSS Security** — Enterprise-grade, key shares never combined
+- **⚡ Sub-second Signing** — Optimized for high-throughput agent interactions
+- **🌉 Monad Native** — Full EVM compatibility, works out of the box
+
+### Integration Details
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| Dynamic SDK Bundle | `scripts/build-dynamic.js` | esbuild config for browser bundle |
+| SDK Entry | `scripts/dynamic-entry.js` | Exports for `createDynamicClient`, `addEvmExtension`, `sendEmailOTP`, etc. |
+| Frontend Integration | `demo/dynamic-integration.js` | Login UI, wallet display, event listeners |
+| Header Button | `demo/index.html` | "Dynamic Wallet" button in top nav |
+
+### Try It
+
+Open the [**Live Demo**](https://alicechu1.github.io/mirror-protocol/) → click **"🔐 Dynamic Wallet"** in the header → choose your login method.
+
+> **To enable live login:** Set your Dynamic environment ID in `demo/dynamic-integration.js` (`DYNAMIC_ENV_ID`), then run `node scripts/build-dynamic.js` to generate the SDK bundle. Get an environment ID from the [Dynamic Dashboard](https://console.dynamic.xyz/).
+
+---
+
 ## 🎯 Overview
 
 MIRROR is an **AI Safety and Agent Relational Alignment Protocol** that moves safety constraints from inside the model to the protocol layer. Safety is the kernel, agents are the carrier, and the protocol layer is the unified infrastructure that is **verifiable, inheritable, and auditable**.
@@ -377,7 +431,8 @@ python3 -m http.server 8000
 | **Smart Contracts** | Solidity + Foundry + Hardhat | ✅ Deployed |
 | **ZK Proofs** | Circom 2.x + snarkjs + Groth16 + Poseidon | ✅ Deployed |
 | **Frontend** | Pure HTML + Ethers.js + snarkjs (UMD) | ✅ Live |
-| **Indexing** | Envio (planned) | 🔄 Planned |
+| **Identity** | Mera (Passkey PRF) + Dynamic (MPC Wallet) | ✅ Live |
+| **Indexing** | Envio HyperIndex | 🔄 In progress |
 | **Chain** | Monad Testnet (parallel EVM) | ✅ Live |
 
 ---
@@ -417,14 +472,16 @@ python3 -m http.server 8000
 - [x] **ZKActionAttestor** — Trust-minimized on-chain verification + baseline binding
 - [x] **Browser-side proof generation** — snarkjs + WASM, ~724 byte proofs
 - [x] **End-to-end on-chain verification** — Compliant + violating paths both tested on Monad
+- [x] **Mera Passkey integration** — PRF-derived persona baselines, passkey-first UX
+- [x] **Dynamic Wallet integration** — MPC/TSS embedded wallet + multi-auth (Email OTP, Passkey, External wallets)
+- [ ] **Envio indexer integration** — On-chain event indexing for Activity Log
 
 ### 🔄 Q4 2026
 - [ ] Higher-dimensional baselines (8–16 lanes)
 - [ ] Recursive proof composition for multi-action batches
 - [ ] Dynamic authorization engine
 - [ ] Motivation mapping algorithm v1
-- [ ] Envio indexer integration
-- [ ] Mera Passkey integration
+- [ ] Envio indexer integration (in progress)
 
 ### 🔄 Q1 2027
 - [ ] Multi-scenario baseline templates (e-commerce, mental health, finance)
