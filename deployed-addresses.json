@@ -4,5 +4,8 @@
   "actionAttestor": "0xbE8af04d2dae81eb4bd9Bc2aA64303520d324146",
   "network": "monad_testnet",
   "deployer": "0x9F1110Ef8BFa59ba4a704f7FE6957d93Ee99b97a",
-  "timestamp": "2026-10-13T09:44:08.860Z"
+  "timestamp": "2026-10-13T09:44:08.860Z",
+  "groth16Verifier": "0x276b696b04E941F871DAc91B99E0c777e3CA220D",
+  "zkActionAttestor": "0x976797046FA9d3b7C730686097bdbFF4bEE913Fb",
+  "zkDeployedAt": "2026-10-14T04:00:50.534Z"
 }
