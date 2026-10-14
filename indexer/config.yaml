@@ -7,8 +7,10 @@ contracts:
       - event: "ZKActionAttested(uint256 indexed id, address indexed agent, bytes32 actionHash, uint256 baselineCommitment, uint256 actionCommitment, bool compliant, uint256 timestamp)"
 
 networks:
-  - id: 143
+  - id: 10143
     start_block: 3000000
+    rpc_config:
+      url: https://testnet-rpc.monad.xyz
     contracts:
       - name: ZKActionAttestor
         address: 0x976797046FA9d3b7C730686097bdbFF4bEE913Fb
