@@ -1,0 +1,272 @@
+[
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_agentRegistry",
+                           "type":  "address"
+                       }
+                   ],
+        "stateMutability":  "nonpayable",
+        "type":  "constructor"
+    },
+    {
+        "anonymous":  false,
+        "inputs":  [
+                       {
+                           "indexed":  true,
+                           "internalType":  "uint256",
+                           "name":  "attestationId",
+                           "type":  "uint256"
+                       },
+                       {
+                           "indexed":  true,
+                           "internalType":  "address",
+                           "name":  "agent",
+                           "type":  "address"
+                       },
+                       {
+                           "indexed":  false,
+                           "internalType":  "bytes32",
+                           "name":  "actionHash",
+                           "type":  "bytes32"
+                       },
+                       {
+                           "indexed":  false,
+                           "internalType":  "bytes32",
+                           "name":  "zkProofHash",
+                           "type":  "bytes32"
+                       },
+                       {
+                           "indexed":  false,
+                           "internalType":  "bool",
+                           "name":  "isVerified",
+                           "type":  "bool"
+                       },
+                       {
+                           "indexed":  false,
+                           "internalType":  "string",
+                           "name":  "result",
+                           "type":  "string"
+                       },
+                       {
+                           "indexed":  false,
+                           "internalType":  "uint256",
+                           "name":  "timestamp",
+                           "type":  "uint256"
+                       }
+                   ],
+        "name":  "ActionAttested",
+        "type":  "event"
+    },
+    {
+        "anonymous":  false,
+        "inputs":  [
+                       {
+                           "indexed":  true,
+                           "internalType":  "address",
+                           "name":  "agent",
+                           "type":  "address"
+                       },
+                       {
+                           "indexed":  false,
+                           "internalType":  "uint256",
+                           "name":  "attestationId",
+                           "type":  "uint256"
+                       },
+                       {
+                           "indexed":  false,
+                           "internalType":  "string",
+                           "name":  "reason",
+                           "type":  "string"
+                       }
+                   ],
+        "name":  "CircuitBreakerTriggered",
+        "type":  "event"
+    },
+    {
+        "inputs":  [
+
+                   ],
+        "name":  "agentRegistry",
+        "outputs":  [
+                        {
+                            "internalType":  "contract IAgentRegistry",
+                            "name":  "",
+                            "type":  "address"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "bytes32",
+                           "name":  "_actionHash",
+                           "type":  "bytes32"
+                       },
+                       {
+                           "internalType":  "bytes32",
+                           "name":  "_zkProofHash",
+                           "type":  "bytes32"
+                       },
+                       {
+                           "internalType":  "bool",
+                           "name":  "_isVerified",
+                           "type":  "bool"
+                       },
+                       {
+                           "internalType":  "string",
+                           "name":  "_result",
+                           "type":  "string"
+                       }
+                   ],
+        "name":  "attestAction",
+        "outputs":  [
+                        {
+                            "internalType":  "uint256",
+                            "name":  "",
+                            "type":  "uint256"
+                        }
+                    ],
+        "stateMutability":  "nonpayable",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_agent",
+                           "type":  "address"
+                       }
+                   ],
+        "name":  "getAgentAttestationCount",
+        "outputs":  [
+                        {
+                            "internalType":  "uint256",
+                            "name":  "",
+                            "type":  "uint256"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_agent",
+                           "type":  "address"
+                       }
+                   ],
+        "name":  "getAgentAttestationIds",
+        "outputs":  [
+                        {
+                            "internalType":  "uint256[]",
+                            "name":  "",
+                            "type":  "uint256[]"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "uint256",
+                           "name":  "_id",
+                           "type":  "uint256"
+                       }
+                   ],
+        "name":  "getAttestation",
+        "outputs":  [
+                        {
+                            "internalType":  "address",
+                            "name":  "agent",
+                            "type":  "address"
+                        },
+                        {
+                            "internalType":  "bytes32",
+                            "name":  "actionHash",
+                            "type":  "bytes32"
+                        },
+                        {
+                            "internalType":  "bytes32",
+                            "name":  "zkProofHash",
+                            "type":  "bytes32"
+                        },
+                        {
+                            "internalType":  "bool",
+                            "name":  "isVerified",
+                            "type":  "bool"
+                        },
+                        {
+                            "internalType":  "uint256",
+                            "name":  "timestamp",
+                            "type":  "uint256"
+                        },
+                        {
+                            "internalType":  "string",
+                            "name":  "result",
+                            "type":  "string"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+
+                   ],
+        "name":  "getAttestationCount",
+        "outputs":  [
+                        {
+                            "internalType":  "uint256",
+                            "name":  "",
+                            "type":  "uint256"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_agent",
+                           "type":  "address"
+                       },
+                       {
+                           "internalType":  "uint256",
+                           "name":  "_count",
+                           "type":  "uint256"
+                       }
+                   ],
+        "name":  "getLatestAttestations",
+        "outputs":  [
+                        {
+                            "internalType":  "uint256[]",
+                            "name":  "ids",
+                            "type":  "uint256[]"
+                        },
+                        {
+                            "internalType":  "bool[]",
+                            "name":  "verified",
+                            "type":  "bool[]"
+                        },
+                        {
+                            "internalType":  "string[]",
+                            "name":  "results",
+                            "type":  "string[]"
+                        },
+                        {
+                            "internalType":  "uint256[]",
+                            "name":  "timestamps",
+                            "type":  "uint256[]"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    }
+]
