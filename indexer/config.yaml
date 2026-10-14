@@ -3,7 +3,8 @@ description: Envio HyperIndex for MIRROR Protocol on Monad
 
 contracts:
   - name: ZKActionAttestor
-    abi_file_path: ./abis/ZKActionAttestor.json
+    abi:
+      - event: "ZKActionAttested(uint256 indexed id, address indexed agent, bytes32 actionHash, uint256 baselineCommitment, uint256 actionCommitment, bool compliant, uint256 timestamp)"
 
 networks:
   - id: 143
