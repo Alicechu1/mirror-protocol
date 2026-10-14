@@ -6,6 +6,7 @@
 <title>MIRROR Protocol Suite — Demo</title>
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/snarkjs@0.7.6/build/snarkjs.min.js"></script>
+<script type="module" src="mera-integration.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -68,6 +69,21 @@
   }
   .wallet-btn:hover { transform: translateY(-1px); }
   .wallet-btn.connected { background: #10b981; }
+
+  .mera-btn {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+    transition: transform 0.2s;
+    margin-right: 8px;
+  }
+  .mera-btn:hover { transform: translateY(-1px); }
+  .mera-btn.connected { background: #10b981; }
 
   .container {
     max-width: 1100px;
@@ -561,7 +577,10 @@
       <p>AI Safety & Agent Alignment Protocol</p>
     </div>
   </div>
-  <button class="wallet-btn" id="walletBtn" onclick="connectWallet()">Connect Wallet</button>
+  <div>
+    <button class="mera-btn" id="meraBtn" onclick="onMeraClick()">🔐 Passkey Login</button>
+    <button class="wallet-btn" id="walletBtn" onclick="connectWallet()">Connect Wallet</button>
+  </div>
 </div>
 
 <div class="container">
@@ -592,9 +611,27 @@
       <button class="btn-primary" style="flex: 1; min-width: 200px;" onclick="connectWallet()">
         Connect MetaMask
       </button>
+      <button class="btn-secondary" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #f59e0b, #ef4444); border: none; color: white;" onclick="onMeraRegister()">
+        🔐 Create Passkey (Mera)
+      </button>
       <button class="btn-secondary" style="flex: 1; min-width: 200px;" onclick="startSimulation()">
         Simulate Demo
       </button>
+    </div>
+
+    <div class="simulation-note" style="margin-top: 16px; border-color: #f59e0b; background: rgba(245, 158, 11, 0.08);">
+      🔑 <strong>Passkey-first with Mera</strong> — No seed phrase, no extension. Your passkey's PRF output deterministically derives your persona baseline and wallet. Same passkey → same baseline, on any device.
+    </div>
+
+    <div class="status-box" id="meraStatus" style="display: none; margin-top: 16px; border-color: #10b981;">
+      <div class="status-title">🔐 Logged in with Passkey</div>
+      <div style="margin-top: 6px; font-size: 13px; color: #888;">
+        Powered by <strong style="color: #f59e0b;">Mera</strong> — PRF-derived wallet
+      </div>
+      <div class="hash-text" id="meraAddress" style="margin-top: 8px;"></div>
+      <div style="margin-top: 8px; font-size: 12px; color: #888;">
+        Baseline: <span id="meraBaselineStatus">derived from passkey PRF</span>
+      </div>
     </div>
 
     <div class="status-box" id="walletStatus" style="display: none;">
@@ -624,6 +661,19 @@
       Define your trading values and boundaries. This baseline will be hashed and stored on-chain.
       Raw data stays on your device — only the commitment hash goes on-chain.
     </p>
+
+    <div id="meraBaselineBox" style="display: none; margin-bottom: 20px; padding: 16px 20px; background: rgba(245, 158, 11, 0.08); border: 1px solid #f59e0b; border-radius: 10px;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+        <span style="font-size: 22px;">🔐</span>
+        <div>
+          <div style="font-weight: 600; color: #f59e0b;">Passkey-Derived Baseline</div>
+          <div style="font-size: 12px; color: #aaa;">Your Mera passkey's PRF output deterministically generates your 4-lane baseline. Same passkey → same baseline, on any device, no server storage.</div>
+        </div>
+      </div>
+      <button class="btn-secondary" style="margin-top: 8px; background: #f59e0b; border: none; color: #000;" onclick="deriveBaselineFromMera()">
+        ↻ Derive Baseline from Passkey
+      </button>
+    </div>
 
     <div class="grid-2">
       <div>
@@ -929,6 +979,8 @@
 let walletConnected = false;
 let walletAddress = '';
 let isSimulating = false;
+let isMeraMode = false;
+const MONAD_RPC_URL = "https://testnet-rpc.monad.xyz/";
 let currentStep = 1;
 let baselineHash = null;
 let agentRegistered = false;
@@ -1296,6 +1348,247 @@ document.getElementById('concentration').addEventListener('input', e => {
 document.getElementById('tradeAmount').addEventListener('input', e => {
   document.getElementById('amountVal').textContent = '$' + parseInt(e.target.value).toLocaleString();
 });
+
+// ============ Mera Passkey ============
+function onMeraClick() {
+  const credentialId = localStorage.getItem("mera_credential_id");
+  if (credentialId) {
+    onMeraLogin();
+  } else {
+    onMeraRegister();
+  }
+}
+
+async function onMeraRegister() {
+  // Wait for mera-integration.js module to load
+  if (typeof window.meraRegister !== "function") {
+    await waitForMera();
+  }
+
+  const username = prompt("Enter a username for your passkey:", "mirror-user");
+  if (!username) return;
+
+  const result = await window.meraRegister(username);
+  if (result.success) {
+    onMeraSuccess(result.address, username);
+  } else {
+    alert("Passkey registration failed: " + result.error);
+  }
+}
+
+async function onMeraLogin() {
+  if (typeof window.meraLogin !== "function") {
+    await waitForMera();
+  }
+
+  const result = await window.meraLogin();
+  if (result.success) {
+    onMeraSuccess(result.address, result.username);
+  } else {
+    alert("Passkey login failed: " + result.error);
+  }
+}
+
+function onMeraSuccess(address, username) {
+  // Set up wallet state (reuse existing wallet infrastructure)
+  walletAddress = address;
+  walletConnected = true;
+  isMeraMode = true;
+  isSimulating = false;
+
+  // Use a JSON-RPC provider for reading, and Mera signing for writing
+  provider = new ethers.providers.JsonRpcProvider(MONAD_RPC_URL);
+
+  // Mera signer wrapper
+  signer = createMeraSigner(address);
+
+  // Initialize contracts
+  if (CONTRACT_ADDRESSES.personaBaseline) {
+    baselineContract = new ethers.Contract(CONTRACT_ADDRESSES.personaBaseline, PERSONA_BASELINE_ABI, signer);
+    registryContract = new ethers.Contract(CONTRACT_ADDRESSES.agentRegistry, AGENT_REGISTRY_ABI, signer);
+    attestorContract = new ethers.Contract(CONTRACT_ADDRESSES.actionAttestor, ACTION_ATTESTOR_ABI, signer);
+  }
+  if (CONTRACT_ADDRESSES.zkActionAttestor) {
+    zkAttestorContract = new ethers.Contract(CONTRACT_ADDRESSES.zkActionAttestor, ZK_ACTION_ATTESTOR_ABI, signer);
+  }
+
+  // Update UI
+  document.getElementById("meraBtn").classList.add("connected");
+  document.getElementById("meraBtn").textContent = "🔐 " + address.substring(0, 6) + "..." + address.substring(38);
+  document.getElementById("meraStatus").style.display = "block";
+  document.getElementById("meraAddress").textContent = address;
+
+  // Hide MetaMask status
+  document.getElementById("walletStatus").style.display = "none";
+
+  // Show Mera baseline derivation box in Step 2
+  document.getElementById("meraBaselineBox").style.display = "block";
+
+  unlockStep(2);
+}
+
+// Derive baseline vector from Mera passkey PRF
+async function deriveBaselineFromMera() {
+  if (!isMeraMode) {
+    alert("Please login with passkey first.");
+    return;
+  }
+
+  if (typeof window.meraGetBaselineVector !== "function") {
+    await waitForMera();
+  }
+
+  try {
+    const lanes = await window.meraGetBaselineVector();
+    // lanes[0] = riskTolerance (1-10), lanes[1] = dailyLoss (1-20)
+    // lanes[2] = concentration (10-100 step 5)
+    // Map the 0-10000 raw values to the slider ranges
+    const riskVal = Math.max(1, Math.min(10, Math.floor(lanes[0] / 1000) + 1));
+    const lossVal = Math.max(1, Math.min(20, Math.floor(lanes[1] / 500) + 1));
+    const concVal = Math.max(10, Math.min(100, Math.floor(lanes[2] / 100) * 5 + 10));
+    // lanes[3] used for asset category bits
+
+    // Update sliders
+    document.getElementById("riskTolerance").value = riskVal;
+    document.getElementById("riskVal").textContent = riskVal + "/10";
+    document.getElementById("dailyLoss").value = lossVal;
+    document.getElementById("lossVal").textContent = lossVal + "%";
+    document.getElementById("concentration").value = concVal;
+    document.getElementById("concVal").textContent = concVal + "%";
+
+    // Update baselineSettings
+    baselineSettings.riskTolerance = riskVal;
+    baselineSettings.dailyLoss = lossVal;
+    baselineSettings.concentration = concVal;
+
+    // Use lane 3 bits for category toggles
+    const lane3 = lanes[3];
+    const toggles = ["spot", "futures", "options", "stablecoin", "defi", "meme"];
+    toggles.forEach((key, i) => {
+      const on = (lane3 >> i) & 1;
+      baselineSettings[key] = !!on;
+      const el = document.querySelector(`.toggle[data-key="${key}"]`);
+      if (el) {
+        if (on) el.classList.add("on");
+        else el.classList.remove("on");
+      }
+    });
+
+    document.getElementById("meraBaselineStatus").textContent =
+      "derived ✓ (risk=" + riskVal + ", loss=" + lossVal + "%, conc=" + concVal + "%)";
+
+    // Flash animation
+    const box = document.getElementById("meraBaselineBox");
+    box.style.boxShadow = "0 0 0 2px #f59e0b";
+    setTimeout(() => { box.style.boxShadow = "none"; }, 500);
+  } catch (e) {
+    console.error(e);
+    alert("Failed to derive baseline: " + e.message);
+  }
+}
+
+function waitForMera() {
+  return new Promise((resolve) => {
+    const check = () => {
+      if (typeof window.meraRegister === "function") {
+        resolve();
+      } else {
+        setTimeout(check, 200);
+      }
+    };
+    check();
+  });
+}
+
+// Create an ethers-compatible signer that uses Mera's signing session
+function createMeraSigner(address) {
+  const provider = new ethers.providers.JsonRpcProvider(MONAD_RPC_URL);
+
+  return {
+    getAddress: () => Promise.resolve(address),
+    getChainId: () => Promise.resolve(10143),
+    getGasPrice: () => provider.getGasPrice(),
+    estimateGas: (tx) => provider.estimateGas(tx),
+    getTransactionCount: (addr) => provider.getTransactionCount(addr || address, "pending"),
+
+    signMessage: async (message) => {
+      // Mera signs digests only, so hash the message first
+      const messageBytes = ethers.utils.isHexString(message)
+        ? ethers.utils.arrayify(message)
+        : ethers.utils.toUtf8Bytes(message);
+      const digest = ethers.utils.keccak256(messageBytes);
+      const sig = await window.meraSignDigest(digest);
+      // Add EIP-191 prefix for eth_sign compatibility
+      const prefixedDigest = ethers.utils.keccak256(
+        ethers.utils.concat([
+          ethers.utils.toUtf8Bytes("\x19Ethereum Signed Message:\n" + messageBytes.length),
+          messageBytes
+        ])
+      );
+      const prefixedSig = await window.meraSignDigest(prefixedDigest);
+      const v = 27 + prefixedSig.v;
+      return ethers.utils.joinSignature({
+        r: prefixedSig.r,
+        s: prefixedSig.s,
+        _vs: "",
+        recoveryParam: prefixedSig.v,
+        v: v
+      });
+    },
+
+    signTransaction: async (tx) => {
+      const RLP = ethers.utils.RLP;
+
+      // Build unsigned tx for EIP-1559
+      const chainId = tx.chainId || 10143;
+      const nonce = tx.nonce || (await provider.getTransactionCount(address, "pending"));
+      const maxFeePerGas = tx.maxFeePerGas || tx.gasPrice || (await provider.getGasPrice());
+      const maxPriorityFeePerGas = tx.maxPriorityFeePerGas || ethers.utils.parseUnits("2", "gwei");
+      const gasLimit = tx.gasLimit || 200000;
+
+      const unsignedTx = {
+        type: 2,
+        chainId: chainId,
+        nonce: nonce,
+        maxPriorityFeePerGas: maxPriorityFeePerGas,
+        maxFeePerGas: maxFeePerGas,
+        gasLimit: gasLimit,
+        to: tx.to,
+        value: tx.value || 0,
+        data: tx.data || "0x",
+        accessList: tx.accessList || []
+      };
+
+      // Get the tx hash to sign
+      const serializedUnsigned = ethers.utils.serializeTransaction(unsignedTx);
+      const digest = ethers.utils.keccak256(serializedUnsigned);
+
+      // Sign with Mera
+      const sig = await window.meraSignDigest(digest);
+
+      // Serialize signed tx
+      const signedTx = ethers.utils.serializeTransaction(unsignedTx, {
+        r: sig.r,
+        s: sig.s,
+        v: sig.v
+      });
+
+      return signedTx;
+    },
+
+    sendTransaction: async (tx) => {
+      const signedTx = await signer.signTransaction(tx);
+      const txResponse = await provider.sendTransaction(signedTx);
+      return txResponse;
+    },
+
+    connect: (prov) => {
+      return signer;
+    },
+
+    _isSigner: true
+  };
+}
 
 // ============ Wallet ============
 async function connectWallet() {
