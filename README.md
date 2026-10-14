@@ -26,8 +26,8 @@
 
 ### 🎬 Watch the 3-min ZK Demo
 
-<a href="#-interactive-demo">
-  <img src="https://img.shields.io/badge/▶_Watch_Demo-3_min_ZK_Walkthrough-667eea?style=for-the-badge" alt="Watch Demo">
+<a href="https://alicechu1.github.io/mirror-protocol/">
+  <img src="https://img.shields.io/badge/▶_Live_Demo-try_it_in_your_browser-667eea?style=for-the-badge" alt="Live Demo">
 </a>
 
 > Browser-side Groth16 proof generation · On-chain verifier · Zero-tolerance circuit breaker
