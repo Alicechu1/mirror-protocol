@@ -1,5 +1,5 @@
 name: mirror-protocol-indexer
-version: 1.0.0
+version: 1.0.1
 description: Envio HyperIndex for MIRROR Protocol on Monad
 schema:
   file: ./schema.graphql
