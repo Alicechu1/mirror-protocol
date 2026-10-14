@@ -27,5 +27,10 @@ npm-debug.log*
 tmp/
 temp/
 
-# Sensitive
-deployed-addresses.json
+# ZK build artifacts
+tools/
+build/circuits/*.ptau
+build/circuits/**/*_js/
+
+# Deployed addresses (public on-chain info, safe to commit for demo verification)
+# deployed-addresses.json
