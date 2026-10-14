@@ -1,0 +1,45 @@
+name: mirror-protocol-indexer
+version: 1.0.0
+description: Envio HyperIndex for MIRROR Protocol on Monad Testnet
+schema:
+  file: ./schema.graphql
+networks:
+  - id: 143
+    name: Monad Testnet
+    rpc_config:
+      url: https://143.rpc.hypersync.xyz
+    start_block: 1000000
+contracts:
+  - name: PersonaBaseline
+    network: Monad Testnet
+    abi_file_path: ./abis/PersonaBaseline.json
+    address: ["0x6eFE4b72F01Fde571C4Ed4c05EDe910F2f9E1435"]
+    handler: ./src/EventHandlers.bs.js
+    events:
+      - name: BaselineRegistered
+      - name: BaselineUpdated
+  - name: AgentRegistry
+    network: Monad Testnet
+    abi_file_path: ./abis/AgentRegistry.json
+    address: ["0x4F464CD9Fa81ECC19366AA382266b10e2A2C1443"]
+    handler: ./src/EventHandlers.bs.js
+    events:
+      - name: AgentRegistered
+      - name: AgentAuthorizationChanged
+  - name: ActionAttestor
+    network: Monad Testnet
+    abi_file_path: ./abis/ActionAttestor.json
+    address: ["0xbE8af04d2dae81eb4bd9Bc2aA64303520d324146"]
+    handler: ./src/EventHandlers.bs.js
+    events:
+      - name: ActionAttested
+      - name: CircuitBreakerTriggered
+  - name: ZKActionAttestor
+    network: Monad Testnet
+    abi_file_path: ./abis/ZKActionAttestor.json
+    address: ["0x976797046FA9d3b7C730686097bdbFF4bEE913Fb"]
+    handler: ./src/EventHandlers.bs.js
+    events:
+      - name: ZKActionAttested
+      - name: ZKVerificationRejected
+      - name: ZKCircuitBreakerTriggered
