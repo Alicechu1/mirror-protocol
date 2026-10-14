@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIRROR Protocol Suite — Demo</title>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/snarkjs@0.7.6/build/snarkjs.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0a0f;
+    color: #e8e8ec;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #0f0f1a, #1a1a2e);
+    border-bottom: 1px solid #2a2a3a;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  .logo-text h1 {
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .logo-text p {
+    font-size: 11px;
+    color: #888;
+  }
+
+  .wallet-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    transition: transform 0.2s;
+  }
+  .wallet-btn:hover { transform: translateY(-1px); }
+  .wallet-btn.connected { background: #10b981; }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px;
+  }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .hero h2 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero p {
+    color: #888;
+    font-size: 16px;
+  }
+
+  .steps-nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+
+  .step-btn {
+    background: #1a1a2a;
+    border: 1px solid #2a2a3a;
+    color: #888;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .step-btn.active {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.1));
+    border-color: #667eea;
+    color: #fff;
+  }
+  .step-btn.done {
+    border-color: #10b981;
+    color: #6ee7b7;
+  }
+
+  .panel {
+    background: #14141f;
+    border: 1px solid #2a2a3a;
+    border-radius: 14px;
+    padding: 30px;
+    display: none;
+  }
+  .panel.active { display: block; }
+
+  .panel h3 {
+    font-size: 22px;
+    margin-bottom: 8px;
+    color: #fff;
+  }
+
+  .panel-desc {
+    color: #888;
+    margin-bottom: 24px;
+    font-size: 14px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #d0d0e0;
+  }
+
+  .form-group .hint {
+    color: #666;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .slider-row input[type="range"] {
+    flex: 1;
+    accent-color: #667eea;
+  }
+
+  .slider-value {
+    min-width: 60px;
+    text-align: right;
+    font-weight: 700;
+    color: #667eea;
+    font-size: 14px;
+  }
+
+  .toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #222230;
+  }
+  .toggle-row:last-child { border-bottom: none; }
+
+  .toggle {
+    position: relative;
+    width: 48px;
+    height: 26px;
+    background: #2a2a3a;
+    border-radius: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .toggle.on { background: #10b981; }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: left 0.2s;
+  }
+  .toggle.on::after { left: 25px; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 15px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-secondary {
+    background: #1a1a2a;
+    color: #d0d0e0;
+    border: 1px solid #2a2a3a;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover {
+    border-color: #667eea;
+    color: #fff;
+  }
+
+  .status-box {
+    background: #0f0f18;
+    border: 1px solid #2a2a3a;
+    border-radius: 10px;
+    padding: 16px;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+
+  .status-box.success {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.06);
+  }
+
+  .status-box.error {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.06);
+  }
+
+  .status-box.warning {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.06);
+  }
+
+  .status-title {
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #fff;
+  }
+
+  .hash-text {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #667eea;
+    word-break: break-all;
+  }
+
+  /* Conflict modal */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: #14141f;
+    border: 1px solid #f59e0b;
+    border-radius: 16px;
+    padding: 30px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+  }
+
+  .modal h3 {
+    color: #fbbf24;
+    font-size: 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .conflict-item {
+    background: rgba(251, 191, 36, 0.08);
+    border-left: 3px solid #f59e0b;
+    padding: 12px 14px;
+    margin: 10px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+  }
+
+  .conflict-label {
+    font-weight: 600;
+    color: #fbbf24;
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  .modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .modal-buttons button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-size: 14px;
+  }
+  .btn-ghost {
+    background: #1a1a2a;
+    color: #888;
+  }
+  .btn-danger {
+    background: #ef4444;
+    color: white;
+  }
+
+  /* Activity log */
+  .activity-log {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 16px;
+  }
+
+  .activity-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    border-bottom: 1px solid #222230;
+    font-size: 13px;
+  }
+
+  .activity-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .activity-dot.authorized { background: #10b981; }
+  .activity-dot.conflict { background: #f59e0b; }
+  .activity-dot.blocked { background: #ef4444; }
+
+  .activity-content { flex: 1; }
+  .activity-action { font-weight: 600; color: #fff; }
+  .activity-result { font-size: 12px; color: #888; margin-top: 2px; }
+  .activity-time { font-size: 11px; color: #666; margin-top: 2px; }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 700px) {
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+
+  .stat-card {
+    background: #0f0f18;
+    border: 1px solid #2a2a3a;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-number {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+  }
+
+  .simulation-note {
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px dashed #f59e0b;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 12px;
+    color: #fbbf24;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  /* ---- Zero-knowledge proof panel ---- */
+  .zk-panel {
+    margin-top: 20px;
+    background: linear-gradient(180deg, #10101c, #0d0d16);
+    border: 1px solid #2a2a3a;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .zk-panel.verified { border-color: #10b981; }
+  .zk-panel.rejected { border-color: #f59e0b; }
+  .zk-panel.failed   { border-color: #ef4444; }
+
+  .zk-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid #222230;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .zk-head .zk-sub {
+    font-size: 11px;
+    font-weight: 500;
+    color: #666;
+  }
+
+  .zk-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+  .zk-badge.idle    { background: #1c1c2a; color: #777; }
+  .zk-badge.running { background: rgba(102,126,234,0.18); color: #a5b4fc; }
+  .zk-badge.ok      { background: rgba(16,185,129,0.16); color: #6ee7b7; }
+  .zk-badge.warn    { background: rgba(245,158,11,0.16); color: #fbbf24; }
+  .zk-badge.err     { background: rgba(239,68,68,0.16); color: #fca5a5; }
+
+  .zk-body { padding: 16px 18px; font-size: 12.5px; }
+
+  .zk-row {
+    display: flex;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px dashed #1e1e2c;
+  }
+  .zk-row:last-child { border-bottom: none; }
+  .zk-key { min-width: 150px; color: #7a7a8c; }
+  .zk-val { flex: 1; color: #d5d5e2; word-break: break-all; }
+  .zk-val.mono { font-family: 'Courier New', monospace; font-size: 11.5px; color: #a5b4fc; }
+  .zk-val.good { color: #6ee7b7; font-weight: 700; }
+  .zk-val.bad  { color: #fbbf24; font-weight: 700; }
+
+  .zk-vectors {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 10px 0;
+  }
+  .zk-vec {
+    background: #0b0b14;
+    border: 1px solid #1e1e2c;
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .zk-vec-title { font-size: 11px; color: #666; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .zk-vec-body { font-family: 'Courier New', monospace; font-size: 12px; color: #8ab4f8; }
+
+  .zk-spinner {
+    display: inline-block;
+    width: 13px; height: 13px;
+    border: 2px solid #3a3a52;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: zk-spin 0.7s linear infinite;
+    vertical-align: -2px;
+    margin-right: 6px;
+  }
+  @keyframes zk-spin { to { transform: rotate(360deg); } }
+
+  .zk-details { margin-top: 10px; }
+  .zk-details summary {
+    cursor: pointer;
+    color: #8a8a9c;
+    font-size: 12px;
+    padding: 6px 0;
+    outline: none;
+  }
+  .zk-details summary:hover { color: #a5b4fc; }
+  .zk-raw {
+    background: #08080f;
+    border: 1px solid #1e1e2c;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 6px;
+    max-height: 260px;
+    overflow: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: #9fb3c8;
+    white-space: pre;
+  }
+  .zk-progress {
+    height: 4px;
+    background: #1c1c2a;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 12px 0 4px;
+  }
+  .zk-progress > div {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+    transition: width 0.3s;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">🔮</div>
+    <div class="logo-text">
+      <h1>MIRROR Protocol Suite</h1>
+      <p>AI Safety & Agent Alignment Protocol</p>
+    </div>
+  </div>
+  <button class="wallet-btn" id="walletBtn" onclick="connectWallet()">Connect Wallet</button>
+</div>
+
+<div class="container">
+
+  <div class="hero">
+    <h2>Agent Alignment, Moved to the Protocol Layer</h2>
+    <p>From "trusting the model" to "verifying behavior" — built on Monad</p>
+  </div>
+
+  <div class="steps-nav">
+    <button class="step-btn active" onclick="showStep(1)" id="step1">1. Connect Wallet</button>
+    <button class="step-btn" onclick="showStep(2)" id="step2">2. Persona Baseline</button>
+    <button class="step-btn" onclick="showStep(3)" id="step3">3. Register Agent</button>
+    <button class="step-btn" onclick="showStep(4)" id="step4">4. Trade & Verify</button>
+    <button class="step-btn" onclick="showStep(5)" id="step5">5. Activity Log</button>
+  </div>
+
+  <!-- Step 1: Wallet -->
+  <div class="panel active" id="panel1">
+    <h3>Step 1: Connect Wallet</h3>
+    <p class="panel-desc">Connect your wallet to interact with the MIRROR protocol on Monad testnet.</p>
+
+    <div class="simulation-note">
+      ⚡ Demo mode: No wallet? No problem. Click "Simulate Demo" to experience the full flow with mock data.
+    </div>
+
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <button class="btn-primary" style="flex: 1; min-width: 200px;" onclick="connectWallet()">
+        Connect MetaMask
+      </button>
+      <button class="btn-secondary" style="flex: 1; min-width: 200px;" onclick="startSimulation()">
+        Simulate Demo
+      </button>
+    </div>
+
+    <div class="status-box" id="walletStatus" style="display: none;">
+      <div class="status-title">✓ Wallet Connected</div>
+      <div class="hash-text" id="walletAddress"></div>
+      <div style="margin-top: 8px; font-size: 12px; color: #888;">
+        Network: <span id="networkName">Monad Testnet</span>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px;">
+      <h4 style="margin-bottom: 12px; color: #d0d0e0;">Deployed Contracts (Monad Testnet)</h4>
+      <div style="font-size: 13px; line-height: 2;">
+        <div><strong style="color: #888;">PersonaBaseline:</strong> <span class="hash-text" id="addr1">0x6eFE4b72F01Fde571C4Ed4c05EDe910F2f9E1435</span></div>
+        <div><strong style="color: #888;">AgentRegistry:</strong> <span class="hash-text" id="addr2">0x4F464CD9Fa81ECC19366AA382266b10e2A2C1443</span></div>
+        <div><strong style="color: #888;">ActionAttestor:</strong> <span class="hash-text" id="addr3">0xbE8af04d2dae81eb4bd9Bc2aA64303520d324146</span></div>
+        <div><strong style="color: #888;">Groth16Verifier:</strong> <span class="hash-text">0x276b696b04E941F871DAc91B99E0c777e3CA220D</span></div>
+        <div><strong style="color: #888;">ZKActionAttestor:</strong> <span class="hash-text">0x976797046FA9d3b7C730686097bdbFF4bEE913Fb</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Persona Baseline -->
+  <div class="panel" id="panel2">
+    <h3>Step 2: Set Your Persona Baseline</h3>
+    <p class="panel-desc">
+      Define your trading values and boundaries. This baseline will be hashed and stored on-chain.
+      Raw data stays on your device — only the commitment hash goes on-chain.
+    </p>
+
+    <div class="grid-2">
+      <div>
+        <div class="form-group">
+          <label>Risk Tolerance</label>
+          <div class="slider-row">
+            <input type="range" id="riskTolerance" min="1" max="10" value="5">
+            <span class="slider-value" id="riskVal">5/10</span>
+          </div>
+          <div class="hint">How much risk are you comfortable with?</div>
+        </div>
+
+        <div class="form-group">
+          <label>Max Daily Loss (%)</label>
+          <div class="slider-row">
+            <input type="range" id="dailyLoss" min="1" max="20" value="5">
+            <span class="slider-value" id="lossVal">5%</span>
+          </div>
+          <div class="hint">Maximum loss allowed in a single day</div>
+        </div>
+
+        <div class="form-group">
+          <label>Position Concentration Limit (%)</label>
+          <div class="slider-row">
+            <input type="range" id="concentration" min="10" max="100" value="30" step="5">
+            <span class="slider-value" id="concVal">30%</span>
+          </div>
+          <div class="hint">Maximum % of portfolio in a single asset</div>
+        </div>
+      </div>
+
+      <div>
+        <label style="font-weight: 600; font-size: 14px; display: block; margin-bottom: 10px;">Asset Categories Allowed</label>
+        <div class="toggle-row">
+          <span>Spot Trading</span>
+          <div class="toggle on" onclick="toggleSwitch(this)" data-key="spot"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Futures / Leverage</span>
+          <div class="toggle" onclick="toggleSwitch(this)" data-key="futures"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Options</span>
+          <div class="toggle" onclick="toggleSwitch(this)" data-key="options"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Stablecoin Yield</span>
+          <div class="toggle on" onclick="toggleSwitch(this)" data-key="stablecoin"></div>
+        </div>
+        <div class="toggle-row">
+          <span>DeFi Protocols</span>
+          <div class="toggle on" onclick="toggleSwitch(this)" data-key="defi"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Meme / New Tokens</span>
+          <div class="toggle" onclick="toggleSwitch(this)" data-key="meme"></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary" style="margin-top: 24px;" onclick="registerBaseline()">
+      Register Baseline On-Chain
+    </button>
+
+    <div class="status-box success" id="baselineStatus" style="display: none;">
+      <div class="status-title">✓ Baseline Registered</div>
+      <div style="font-size: 12px; color: #888; margin-bottom: 4px;">Commitment hash:</div>
+      <div class="hash-text" id="baselineHash"></div>
+    </div>
+  </div>
+
+  <!-- Step 3: Register Agent -->
+  <div class="panel" id="panel3">
+    <h3>Step 3: Register Your Agent</h3>
+    <p class="panel-desc">
+      Create your first AI trading agent. The agent must inherit your persona baseline before it can act.
+      This ensures safety constraints are passed from you to your agent.
+    </p>
+
+    <div class="form-group">
+      <label>Agent Name</label>
+      <input type="text" id="agentName" value="TradingAgent-01" style="width: 100%; padding: 12px; background: #0f0f18; border: 1px solid #2a2a3a; border-radius: 8px; color: #fff; font-size: 14px;">
+    </div>
+
+    <div class="form-group">
+      <label>Agent Address</label>
+      <input type="text" id="agentAddress" placeholder="0x..." style="width: 100%; padding: 12px; background: #0f0f18; border: 1px solid #2a2a3a; border-radius: 8px; color: #fff; font-size: 13px; font-family: monospace;">
+      <div class="hint">The address of your agent contract or EOA</div>
+    </div>
+
+    <div class="status-box" id="agentBaselineInfo">
+      <div class="status-title">📋 Baseline to Inherit</div>
+      <div style="font-size: 12px; color: #888; margin-bottom: 4px;">Your active baseline hash:</div>
+      <div class="hash-text" id="inheritHash">Not registered yet</div>
+    </div>
+
+    <button class="btn-primary" onclick="registerAgent()">
+      Register Agent (Generation 1)
+    </button>
+
+    <div class="status-box success" id="agentStatus" style="display: none;">
+      <div class="status-title">✓ Agent Registered</div>
+      <div style="font-size: 13px; color: #d0d0e0;">
+        Generation: <strong id="agentGen">1</strong><br>
+        Status: <strong style="color: #10b981;">Authorized</strong>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #2a2a3a;">
+      <h4 style="margin-bottom: 12px; color: #d0d0e0;">🧬 Cross-Generation Inheritance</h4>
+      <p style="font-size: 13px; color: #888; margin-bottom: 12px;">
+        When your agent creates a next-generation agent, it must pass along the same baseline hash.
+        This is how MIRROR solves the recursive self-improvement safety problem.
+      </p>
+      <button class="btn-secondary" onclick="registerGen2()">
+        Create Second-Generation Agent
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 4: Trade & Verify -->
+  <div class="panel" id="panel4">
+    <h3>Step 4: Agent Action Verification</h3>
+    <p class="panel-desc">
+      Watch your agent propose trades. MIRROR proves — right here in your browser — that each action
+      complies with your persona baseline, without revealing the baseline or the action.
+      If an action violates your constraints, the conflict is presented to you — you decide.
+    </p>
+
+    <div class="grid-2" style="margin-bottom: 20px;">
+      <div class="stat-card">
+        <div class="stat-number" id="statAuthorized">0</div>
+        <div class="stat-label">Authorized Actions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="statBlocked">0</div>
+        <div class="stat-label">Blocked / Conflicts</div>
+      </div>
+    </div>
+
+    <h4 style="margin-bottom: 12px; color: #d0d0e0;">Propose a Trade Action</h4>
+
+    <div class="form-group">
+      <label>Action Type</label>
+      <select id="actionType" onchange="updateActionPreview()" style="width: 100%; padding: 12px; background: #0f0f18; border: 1px solid #2a2a3a; border-radius: 8px; color: #fff; font-size: 14px;">
+        <option value="buy_spot">Buy ETH (Spot)</option>
+        <option value="buy_futures">Open BTC Long (10x Futures)</option>
+        <option value="buy_meme">Buy PEPE (Meme Coin)</option>
+        <option value="supply_stable">Supply USDC to Aave</option>
+        <option value="sell_spot">Sell ETH (Spot)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Amount (USD)</label>
+      <div class="slider-row">
+        <input type="range" id="tradeAmount" min="100" max="10000" value="1000" step="100">
+        <span class="slider-value" id="amountVal">$1,000</span>
+      </div>
+    </div>
+
+    <div class="status-box" id="previewBox">
+      <div class="status-title">🔍 Baseline Check Preview</div>
+      <div style="font-size: 13px; color: #d0d0e0;" id="previewText">Select an action to see if it passes your baseline...</div>
+    </div>
+
+    <button class="btn-primary" onclick="executeAction()">
+      Execute Agent Action
+    </button>
+
+    <!-- Layer 1: in-browser zero-knowledge proof -->
+    <div class="zk-panel" id="zkPanel">
+      <div class="zk-head">
+        <div>
+          ⚡ In-Browser Zero-Knowledge Proof
+          <div class="zk-sub">Groth16 · ActionBaselineMatch · proven on this device — your baseline never leaves it</div>
+        </div>
+        <span class="zk-badge idle" id="zkBadge">idle</span>
+      </div>
+      <div class="zk-body">
+        <div class="zk-row"><span class="zk-key">Circuit</span><span class="zk-val">ActionBaselineMatch(4 lanes, 32-bit)</span></div>
+        <div class="zk-row"><span class="zk-key">Constraints</span><span class="zk-val">2,101 (1,169 non-linear)</span></div>
+        <div class="zk-row"><span class="zk-key">Proving system</span><span class="zk-val">Groth16 / bn128</span></div>
+        <div class="zk-row"><span class="zk-key">Baseline commitment</span><span class="zk-val mono" id="zkBaseCommit">—</span></div>
+        <div class="zk-row"><span class="zk-key">ZK engine</span><span class="zk-val" id="zkEngine"><span class="zk-spinner"></span>loading snarkjs + poseidon…</span></div>
+        <div id="zkDynamic"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 5: Activity Log -->
+  <div class="panel" id="panel5">
+    <h3>Step 5: On-Chain Activity Log</h3>
+    <p class="panel-desc">
+      Every agent action is attested on-chain. Non-tamperable. Non-hideable. Auditable.
+      This is Layer 5: the non-repudiation layer.
+    </p>
+
+    <div class="grid-2" style="margin-bottom: 20px;">
+      <div class="stat-card">
+        <div class="stat-number" id="totalAttestations">0</div>
+        <div class="stat-label">Total Attestations</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="verificationRate">0%</div>
+        <div class="stat-label">Verification Pass Rate</div>
+      </div>
+    </div>
+
+    <h4 style="margin-bottom: 12px; color: #d0d0e0;">Recent Activity</h4>
+    <div class="activity-log" id="activityLog">
+      <div style="text-align: center; color: #666; padding: 30px; font-size: 13px;">
+        No actions yet. Execute some trades to see the log.
+      </div>
+    </div>
+
+    <div style="margin-top: 28px; padding-top: 22px; border-top: 1px solid #2a2a3a;">
+      <h4 style="margin-bottom: 4px; color: #d0d0e0;">🔗 On-Chain Event Cheat Sheet</h4>
+      <p style="font-size: 12.5px; color: #888; margin-bottom: 14px;">
+        Match these topic hashes against the Logs tab of any ZKActionAttestor transaction on the Monad testnet explorer.
+      </p>
+      <div class="zk-row"><span class="zk-key" style="min-width:220px;color:#6ee7b7;font-weight:700">ZKActionAttested</span><span class="zk-val mono" style="font-size:11.5px">0x03ca372806b1d82da09858ad214918141bf9654f8aead8310d53ab0e58e393ef</span></div>
+      <div class="zk-row"><span class="zk-key" style="min-width:220px;color:#fbbf24;font-weight:700">ZKCircuitBreakerTriggered</span><span class="zk-val mono" style="font-size:11.5px">0xa49ad998e8f05c5a78c21ca30cecfbd1c2ae5681a83f238ffd339e6e5d9989a4</span></div>
+      <div class="zk-row"><span class="zk-key" style="min-width:220px;color:#fca5a5;font-weight:700">ZKVerificationRejected</span><span class="zk-val mono" style="font-size:11.5px">0x1917839c1ffbf9b33bad824d7fb3cdcc8f3c3fba4b8fa494eb2a5881ce2cb805</span></div>
+      <div style="margin-top:12px;font-size:11.5px;color:#666;line-height:1.6">
+        <b style="color:#888">Why two events on a violation?</b><br>
+        ZKActionAttested always fires (Layer 5 — non-repudiation).<br>
+        ZKCircuitBreakerTriggered fires additionally when <code>matchResult = 0</code> (zero-tolerance policy).
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Conflict Modal -->
+<div class="modal-overlay" id="conflictModal">
+  <div class="modal">
+    <h3>⚠️ Value Conflict Detected</h3>
+    <p style="color: #d0d0e0; font-size: 14px; margin-bottom: 12px;">
+      Your agent wants to execute this action, but it conflicts with your persona baseline:
+    </p>
+
+    <div class="conflict-item">
+      <div class="conflict-label">YOUR INSTRUCTION</div>
+      <div id="conflictInstruction">Buy 10x BTC futures</div>
+    </div>
+
+    <div class="conflict-item">
+      <div class="conflict-label">BASELINE CONFLICT</div>
+      <div id="conflictReason">Your baseline does not allow futures/leverage trading</div>
+    </div>
+
+    <div class="conflict-item">
+      <div class="conflict-label">POSSIBLE MOTIVATION</div>
+      <div id="conflictMotivation">You may be seeking higher returns than your baseline allows, or you may have misstated your risk preference.</div>
+    </div>
+
+    <div class="conflict-item">
+      <div class="conflict-label">WHAT MIRROR SUGGESTS</div>
+      <div>Consider adjusting either your instruction or your baseline. MIRROR presents the conflict — you decide.</div>
+    </div>
+
+    <details class="zk-details">
+      <summary>View zero-knowledge proof</summary>
+      <pre class="zk-raw" id="modalZkRaw"></pre>
+    </details>
+
+    <div class="modal-buttons">
+      <button class="btn-ghost" onclick="closeConflict('adjust')">Adjust baseline</button>
+      <button class="btn-ghost" onclick="closeConflict('cancel')">Cancel action</button>
+      <button class="btn-danger" onclick="closeConflict('override')">Proceed anyway</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loads circomlibjs (Poseidon) as an ES module and exposes it globally.
+     The circuit commits the baseline/action vectors with Poseidon, so the
+     browser has to run the exact same hash to build the witness. -->
+<script type="module">
+  const POSEIDON_CDNS = [
+    "https://esm.sh/circomlibjs@0.1.7",
+    "https://cdn.jsdelivr.net/npm/circomlibjs@0.1.7/+esm"
+  ];
+  (async () => {
+    for (const url of POSEIDON_CDNS) {
+      try {
+        const mod = await import(url);
+        if (mod && mod.buildPoseidon) {
+          window.buildPoseidon = mod.buildPoseidon;
+          window.dispatchEvent(new Event('poseidon-ready'));
+          return;
+        }
+      } catch (err) {
+        console.warn('[MIRROR] circomlibjs load failed from', url, err);
+      }
+    }
+    window.dispatchEvent(new Event('poseidon-error'));
+  })();
+</script>
+
+<script>
+// ============ State ============
+let walletConnected = false;
+let walletAddress = '';
+let isSimulating = false;
+let currentStep = 1;
+let baselineHash = null;
+let agentRegistered = false;
+let activity = [];
+let authorizedCount = 0;
+let blockedCount = 0;
+
+// Baseline settings
+let baselineSettings = {
+  riskTolerance: 5,
+  dailyLoss: 5,
+  concentration: 30,
+  spot: true,
+  futures: false,
+  options: false,
+  stablecoin: true,
+  defi: true,
+  meme: false
+};
+
+// Contract ABIs (minimal for demo)
+const PERSONA_BASELINE_ABI = [
+  "function registerBaseline(bytes32, string) external",
+  "function getBaselineHash(address) view returns (bytes32)",
+  "function hasActiveBaseline(address) view returns (bool)"
+];
+
+const AGENT_REGISTRY_ABI = [
+  "function registerAgent(address, bytes32) external",
+  "function isAgentAuthorized(address) view returns (bool)",
+  "function getAgentGeneration(address) view returns (uint256)"
+];
+
+const ACTION_ATTESTOR_ABI = [
+  "function attestAction(bytes32, bytes32, bool, string) external returns (uint256)",
+  "function getAttestationCount() view returns (uint256)"
+];
+
+// Trustless attestor: decides compliance by verifying a Groth16 proof on-chain,
+// rather than trusting an `isVerified` flag supplied by the caller.
+const ZK_ACTION_ATTESTOR_ABI = [
+  "function attestAction(bytes32 actionHash, uint256[2] pA, uint256[2][2] pB, uint256[2] pC, uint256[4] pubSignals) external returns (uint256)",
+  "function getAttestationCount() view returns (uint256)",
+  "function violationCount(address) view returns (uint256)"
+];
+
+// Contract addresses - deployed on Monad Testnet
+const CONTRACT_ADDRESSES = {
+  personaBaseline: '0x6eFE4b72F01Fde571C4Ed4c05EDe910F2f9E1435',
+  agentRegistry: '0x4F464CD9Fa81ECC19366AA382266b10e2A2C1443',
+  actionAttestor: '0xbE8af04d2dae81eb4bd9Bc2aA64303520d324146',
+  // Groth16 verifier + trustless attestor, live on Monad testnet
+  groth16Verifier: '0x276b696b04E941F871DAc91B99E0c777e3CA220D',
+  zkActionAttestor: '0x976797046FA9d3b7C730686097bdbFF4bEE913Fb'
+};
+
+let provider, signer, baselineContract, registryContract, attestorContract, zkAttestorContract;
+
+// ============ Layer 1: Zero-Knowledge proof engine ============
+// Runs the real ActionBaselineMatch circuit in the browser via snarkjs.
+// Assets are pre-built and shipped alongside the demo.
+const ZK = {
+  wasmUrl: 'assets/ActionBaselineMatch.wasm',
+  zkeyUrl: 'assets/circuit_final.zkey',
+  vkeyUrl: 'assets/verification_key.json',
+  poseidon: null,   // buildPoseidon() result
+  vkey: null,       // cached verification key
+  ready: false
+};
+
+// Per-action feature profile. The circuit's 4 lanes are:
+//   [0] risk score, [1] position size %, [2] leverage, [3] futures flag
+const ACTION_PROFILE = {
+  buy_spot:      { risk: 30, leverage: 1,  futures: 0 },
+  buy_futures:   { risk: 80, leverage: 10, futures: 1 },
+  buy_meme:      { risk: 90, leverage: 1,  futures: 0 },
+  supply_stable: { risk: 10, leverage: 1,  futures: 0 },
+  sell_spot:     { risk: 20, leverage: 1,  futures: 0 }
+};
+
+const PORTFOLIO_SIZE = 10000;
+
+// Lane encoding shared with the circuit:
+//   baselineVector[i] = limit_i * 2 + direction_i
+// direction 0 -> require action <= limit (all demo lanes use this)
+function encodeLane(limit, direction = 0) {
+  return BigInt(limit) * 2n + BigInt(direction);
+}
+
+function getBaselineVector() {
+  const s = baselineSettings;
+  const riskLimit = s.riskTolerance * 10;             // 1..10 -> 10..100
+  const positionLimit = s.concentration;              // 10..100
+  const leverageLimit = s.futures ? 10 : 1;
+  const futuresLimit = s.futures ? 1 : 0;
+  return [
+    encodeLane(riskLimit, 0),
+    encodeLane(positionLimit, 0),
+    encodeLane(leverageLimit, 0),
+    encodeLane(futuresLimit, 0)
+  ];
+}
+
+function getActionVector(actionType, amount) {
+  const p = ACTION_PROFILE[actionType] || ACTION_PROFILE.buy_spot;
+  const positionPct = Math.round((amount / PORTFOLIO_SIZE) * 100);
+  return [
+    BigInt(p.risk),
+    BigInt(positionPct),
+    BigInt(p.leverage),
+    BigInt(p.futures)
+  ];
+}
+
+async function poseidonCommitment(vector) {
+  const poseidon = ZK.poseidon;
+  return poseidon.F.toString(poseidon(vector.map(v => BigInt(v))));
+}
+
+function fieldToBytes32(decimal) {
+  return '0x' + BigInt(decimal).toString(16).padStart(64, '0');
+}
+
+function hexShort(hex, head = 10, tail = 8) {
+  if (!hex || hex.length <= head + tail + 2) return hex;
+  return hex.slice(0, head) + '…' + hex.slice(-tail);
+}
+
+// Boot the ZK engine: snarkjs is loaded via <script>, Poseidon via ESM import.
+function initZKEngine() {
+  const engineEl = document.getElementById('zkEngine');
+
+  const markReady = async () => {
+    if (!window.buildPoseidon) return;
+    ZK.poseidon = await window.buildPoseidon();
+    ZK.ready = true;
+    engineEl.innerHTML =
+      '<span style="color:#6ee7b7;font-weight:700;">ready</span> · snarkjs ' +
+      (window.snarkjs && window.snarkjs.getCurveFromName ? '0.7.6' : '?') +
+      ' + poseidon (circomlibjs)';
+    refreshBaselineCommitment();
+  };
+
+  if (window.buildPoseidon) {
+    markReady();
+  } else {
+    window.addEventListener('poseidon-ready', markReady);
+  }
+  window.addEventListener('poseidon-error', () => {
+    engineEl.innerHTML =
+      '<span style="color:#fca5a5;font-weight:700;">offline</span> · could not load circomlibjs from CDN';
+  });
+}
+
+// Show the Poseidon commitment of the *current* baseline settings in the panel.
+async function refreshBaselineCommitment() {
+  if (!ZK.ready) return;
+  const el = document.getElementById('zkBaseCommit');
+  try {
+    const vec = getBaselineVector();
+    const commit = await poseidonCommitment(vec);
+    el.textContent = hexShort(fieldToBytes32(commit), 14, 10);
+    el.title = fieldToBytes32(commit);
+  } catch (e) {
+    el.textContent = '—';
+  }
+}
+
+// Full in-browser proving pipeline:
+// encode -> commit -> witness -> Groth16 proof -> local verification.
+async function generateZKProof(actionType, amount, onProgress = () => {}) {
+  if (!ZK.ready) throw new Error('ZK engine not ready yet');
+
+  onProgress('encoding baseline & action vectors…', 10);
+  const baselineVector = getBaselineVector();
+  const actionVector = getActionVector(actionType, amount);
+
+  onProgress('computing Poseidon commitments…', 25);
+  const baselineCommitment = await poseidonCommitment(baselineVector);
+  const actionCommitment = await poseidonCommitment(actionVector);
+
+  const input = {
+    baselineCommitment,
+    actionCommitment,
+    matchThreshold: "0",
+    baselineVector: baselineVector.map(String),
+    actionVector: actionVector.map(String)
+  };
+
+  onProgress('building witness & running Groth16 prover (wasm)…', 45);
+  const t0 = performance.now();
+  const { proof, publicSignals } = await snarkjs.groth16.fullProve(
+    input, ZK.wasmUrl, ZK.zkeyUrl
+  );
+  const proveMs = Math.round(performance.now() - t0);
+
+  onProgress('verifying proof against verification key…', 90);
+  if (!ZK.vkey) {
+    ZK.vkey = await (await fetch(ZK.vkeyUrl)).json();
+  }
+  const t1 = performance.now();
+  const valid = await snarkjs.groth16.verify(ZK.vkey, publicSignals, proof);
+  const verifyMs = Math.round(performance.now() - t1);
+
+  onProgress('done', 100);
+
+  const proofBytes = new TextEncoder().encode(JSON.stringify(proof)).length;
+
+  return {
+    proof, publicSignals, valid, proveMs, verifyMs, proofBytes,
+    baselineVector, actionVector,
+    baselineCommitment, actionCommitment,
+    compliant: publicSignals[0] === '1',
+    actionHash: fieldToBytes32(actionCommitment)
+  };
+}
+
+function setZKPanelState(state, badgeText) {
+  const panel = document.getElementById('zkPanel');
+  const badge = document.getElementById('zkBadge');
+  panel.classList.remove('verified', 'rejected', 'failed');
+  badge.className = 'zk-badge ' + state;
+  badge.textContent = badgeText;
+}
+
+function showZKProgress(label, pct) {
+  setZKPanelState('running', 'proving');
+  document.getElementById('zkDynamic').innerHTML =
+    '<div class="zk-progress"><div style="width:' + pct + '%"></div></div>' +
+    '<div style="color:#a5b4fc;font-size:12px;margin-top:6px;">' +
+    '<span class="zk-spinner"></span>' + label + '</div>';
+}
+
+const LANE_LABELS = ['risk score', 'position %', 'leverage', 'futures flag'];
+
+function decodeLane(v) {
+  const enc = Number(v);
+  return { limit: Math.floor(enc / 2), dir: enc % 2 };
+}
+
+function renderZKResult(zk) {
+  const laneText = zk.baselineVector.map((v, i) => {
+    const { limit, dir } = decodeLane(v);
+    return LANE_LABELS[i] + (dir === 0 ? ' ≤ ' : ' ≥ ') + limit;
+  }).join('  ·  ');
+
+  const actionText = zk.actionVector.map((v, i) => LANE_LABELS[i] + '=' + v).join('  ·  ');
+
+  const rawProof = JSON.stringify({
+    pi_a: zk.proof.pi_a,
+    pi_b: zk.proof.pi_b,
+    pi_c: zk.proof.pi_c,
+    protocol: zk.proof.protocol,
+    curve: zk.proof.curve
+  }, null, 2);
+
+  const resultClass = zk.compliant ? 'good' : 'bad';
+  const resultText = zk.compliant
+    ? 'COMPLIANT · matchResult = 1'
+    : 'VIOLATION · matchResult = 0';
+
+  document.getElementById('zkDynamic').innerHTML = `
+    <div class="zk-vectors">
+      <div class="zk-vec">
+        <div class="zk-vec-title">Private · baseline rules</div>
+        <div class="zk-vec-body">${laneText}</div>
+      </div>
+      <div class="zk-vec">
+        <div class="zk-vec-title">Private · action features</div>
+        <div class="zk-vec-body">${actionText}</div>
+      </div>
+    </div>
+    <div class="zk-row"><span class="zk-key">Result (public)</span><span class="zk-val ${resultClass}">${resultText}</span></div>
+    <div class="zk-row"><span class="zk-key">baselineCommitment</span><span class="zk-val mono" title="${fieldToBytes32(zk.baselineCommitment)}">${hexShort(fieldToBytes32(zk.baselineCommitment), 18, 12)}</span></div>
+    <div class="zk-row"><span class="zk-key">actionCommitment</span><span class="zk-val mono" title="${zk.actionHash}">${hexShort(zk.actionHash, 18, 12)}</span></div>
+    <div class="zk-row"><span class="zk-key">Proof verification</span><span class="zk-val ${zk.valid ? 'good' : 'bad'}">${zk.valid ? '✓ valid (verified locally)' : '✗ invalid'}</span></div>
+    <div class="zk-row"><span class="zk-key">Proving time</span><span class="zk-val">${zk.proveMs} ms · Groth16 wasm, in-browser</span></div>
+    <div class="zk-row"><span class="zk-key">Verify time</span><span class="zk-val">${zk.verifyMs} ms</span></div>
+    <div class="zk-row"><span class="zk-key">Proof size</span><span class="zk-val">${zk.proofBytes} bytes · 3 group elements (π_a, π_b, π_c)</span></div>
+    <details class="zk-details">
+      <summary>View raw proof (π_a, π_b, π_c)</summary>
+      <pre class="zk-raw">${rawProof}</pre>
+    </details>
+  `;
+
+  setZKPanelState(zk.valid ? (zk.compliant ? 'verified' : 'rejected') : 'failed',
+                  zk.valid ? (zk.compliant ? 'verified' : 'violation') : 'invalid');
+
+  renderModalZK(zk);
+}
+
+// Mirrors the proof summary inside the conflict modal, so the user can inspect
+// the proof without leaving the decision dialog.
+function renderModalZK(zk) {
+  const el = document.getElementById('modalZkRaw');
+  if (!el) return;
+
+  el.textContent = [
+    'matchResult       : ' + zk.publicSignals[0] + (zk.compliant ? '  (COMPLIANT)' : '  (VIOLATION)'),
+    'baselineCommitment: ' + fieldToBytes32(zk.baselineCommitment),
+    'actionCommitment  : ' + zk.actionHash,
+    'matchThreshold    : ' + zk.publicSignals[3],
+    'proof size        : ' + zk.proofBytes + ' bytes',
+    'local verify      : ' + (zk.valid ? 'valid' : 'INVALID') + '  (' + zk.verifyMs + ' ms)',
+    '',
+    'π_a: ' + JSON.stringify(zk.proof.pi_a),
+    'π_b: ' + JSON.stringify(zk.proof.pi_b),
+    'π_c: ' + JSON.stringify(zk.proof.pi_c)
+  ].join('\n');
+}
+
+function showZKError(err) {
+  document.getElementById('zkDynamic').innerHTML =
+    '<div class="zk-row"><span class="zk-key">Error</span>' +
+    '<span class="zk-val bad">' + (err && err.message ? err.message : String(err)) + '</span></div>' +
+    '<div style="color:#777;font-size:12px;margin-top:8px;">' +
+    'If assets fail to load, serve the demo over http (e.g. <code>npx serve demo</code>) — ' +
+    'browsers block wasm fetch on <code>file://</code>.</div>';
+  setZKPanelState('failed', 'error');
+}
+
+// ============ UI Helpers ============
+function showStep(n) {
+  // You can only go to steps you've unlocked
+  if (n > currentStep) return;
+  
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('panel' + i).classList.remove('active');
+    document.getElementById('step' + i).classList.remove('active');
+  }
+  document.getElementById('panel' + n).classList.add('active');
+  document.getElementById('step' + n).classList.add('active');
+}
+
+function unlockStep(n) {
+  if (n > currentStep) {
+    currentStep = n;
+    document.getElementById('step' + n).classList.add('done');
+  }
+}
+
+function toggleSwitch(el, key) {
+  el.classList.toggle('on');
+  const isOn = el.classList.contains('on');
+  if (key) baselineSettings[key] = isOn;
+  updateActionPreview();
+}
+
+// Sliders
+document.getElementById('riskTolerance').addEventListener('input', e => {
+  baselineSettings.riskTolerance = parseInt(e.target.value);
+  document.getElementById('riskVal').textContent = e.target.value + '/10';
+  updateActionPreview();
+});
+document.getElementById('dailyLoss').addEventListener('input', e => {
+  baselineSettings.dailyLoss = parseInt(e.target.value);
+  document.getElementById('lossVal').textContent = e.target.value + '%';
+  updateActionPreview();
+});
+document.getElementById('concentration').addEventListener('input', e => {
+  baselineSettings.concentration = parseInt(e.target.value);
+  document.getElementById('concVal').textContent = e.target.value + '%';
+  updateActionPreview();
+});
+document.getElementById('tradeAmount').addEventListener('input', e => {
+  document.getElementById('amountVal').textContent = '$' + parseInt(e.target.value).toLocaleString();
+});
+
+// ============ Wallet ============
+async function connectWallet() {
+  if (typeof window.ethereum === 'undefined') {
+    alert('MetaMask not found. Click "Simulate Demo" to try without a wallet.');
+    return;
+  }
+  
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    walletAddress = accounts[0];
+    walletConnected = true;
+    
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+    
+    // Initialize contracts if addresses are set
+    if (CONTRACT_ADDRESSES.personaBaseline) {
+      baselineContract = new ethers.Contract(CONTRACT_ADDRESSES.personaBaseline, PERSONA_BASELINE_ABI, signer);
+      registryContract = new ethers.Contract(CONTRACT_ADDRESSES.agentRegistry, AGENT_REGISTRY_ABI, signer);
+      attestorContract = new ethers.Contract(CONTRACT_ADDRESSES.actionAttestor, ACTION_ATTESTOR_ABI, signer);
+    }
+    if (CONTRACT_ADDRESSES.zkActionAttestor) {
+      zkAttestorContract = new ethers.Contract(CONTRACT_ADDRESSES.zkActionAttestor, ZK_ACTION_ATTESTOR_ABI, signer);
+    }
+    
+    updateWalletUI();
+    unlockStep(2);
+  } catch (e) {
+    console.error(e);
+    alert('Failed to connect wallet: ' + e.message);
+  }
+}
+
+function updateWalletUI() {
+  const btn = document.getElementById('walletBtn');
+  btn.classList.add('connected');
+  btn.textContent = walletAddress.substring(0, 6) + '...' + walletAddress.substring(38);
+  
+  document.getElementById('walletStatus').style.display = 'block';
+  document.getElementById('walletAddress').textContent = walletAddress;
+}
+
+function startSimulation() {
+  isSimulating = true;
+  walletAddress = '0x742d35Cc6634C0532925a3b844Bc9e7595f5bAd1'; // demo address
+  walletConnected = true;
+  
+  updateWalletUI();
+  unlockStep(2);
+  showStep(2);
+}
+
+// ============ Baseline ============
+async function registerBaseline() {
+  if (!walletConnected) {
+    alert('Please connect wallet or start simulation first.');
+    return;
+  }
+
+  if (!ZK.ready) {
+    alert('The zero-knowledge engine is still loading. Please wait a moment and try again.');
+    return;
+  }
+
+  // The on-chain baseline is the Poseidon commitment of the encoded baseline
+  // vector — the exact value the ZK circuit is later proven against. Raw
+  // settings stay in the browser; only the commitment is published.
+  const baselineVector = getBaselineVector();
+  const commitment = await poseidonCommitment(baselineVector);
+  const hash = fieldToBytes32(commitment);
+  baselineHash = hash;
+  window.baselineVector = baselineVector;
+  
+  if (isSimulating) {
+    // Simulate on-chain registration
+    await sleep(1000);
+  } else if (baselineContract) {
+    try {
+      const tx = await baselineContract.registerBaseline(hash, '');
+      await tx.wait();
+    } catch (e) {
+      alert('Transaction failed: ' + e.message);
+      return;
+    }
+  } else {
+    alert('Contract not deployed. Please deploy first or use simulation mode.');
+    return;
+  }
+  
+  document.getElementById('baselineStatus').style.display = 'block';
+  document.getElementById('baselineHash').textContent = hash;
+  document.getElementById('inheritHash').textContent = hash;
+  
+  // Generate a random agent address for demo
+  document.getElementById('agentAddress').value = '0x' + simpleHash('agent-' + Date.now()).substring(0, 40);
+  
+  unlockStep(3);
+  showStep(3);
+}
+
+// ============ Agent ============
+async function registerAgent() {
+  if (!baselineHash) {
+    alert('Please register your baseline first.');
+    return;
+  }
+  
+  const agentAddr = document.getElementById('agentAddress').value;
+  if (!agentAddr || !agentAddr.startsWith('0x')) {
+    alert('Please enter a valid agent address.');
+    return;
+  }
+  
+  if (isSimulating) {
+    await sleep(800);
+  } else if (registryContract) {
+    try {
+      const tx = await registryContract.registerAgent(agentAddr, baselineHash);
+      await tx.wait();
+    } catch (e) {
+      alert('Transaction failed: ' + e.message);
+      return;
+    }
+  }
+  
+  agentRegistered = true;
+  document.getElementById('agentStatus').style.display = 'block';
+  document.getElementById('agentGen').textContent = '1';
+  
+  unlockStep(4);
+  showStep(4);
+  updateActionPreview();
+}
+
+async function registerGen2() {
+  alert('Second-generation agent created!\n\nIn a real deployment, this agent would be created by the first agent itself, inheriting the same baseline hash. This is how safety is preserved across recursive self-improvement cycles.');
+}
+
+// ============ Actions ============
+function updateActionPreview() {
+  const actionType = document.getElementById('actionType').value;
+  const amount = parseInt(document.getElementById('tradeAmount').value);
+  const preview = document.getElementById('previewText');
+  const previewBox = document.getElementById('previewBox');
+  
+  const result = checkAgainstBaseline(actionType, amount);
+  refreshBaselineCommitment();
+  
+  if (result.pass) {
+    previewBox.className = 'status-box success';
+    preview.innerHTML = '<span style="color: #10b981; font-weight: 600;">✓ PASSES BASELINE</span><br>' + result.reason;
+  } else if (result.conflict) {
+    previewBox.className = 'status-box warning';
+    preview.innerHTML = '<span style="color: #f59e0b; font-weight: 600;">⚠️ CONFLICT DETECTED</span><br>' + result.reason;
+  } else {
+    previewBox.className = 'status-box error';
+    preview.innerHTML = '<span style="color: #ef4444; font-weight: 600;">✗ BLOCKED</span><br>' + result.reason;
+  }
+}
+
+// Asset-category rules live in the policy layer (the 4-lane circuit models the
+// numeric bounds only).
+function checkCategory(actionType) {
+  const s = baselineSettings;
+  switch (actionType) {
+    case 'buy_spot':
+    case 'sell_spot':
+      return s.spot ? { ok: true } : { ok: false, reason: 'Spot trading is disabled in your baseline.' };
+    case 'buy_futures':
+      return s.futures ? { ok: true } : { ok: false, reason: 'Futures / leverage trading is not allowed in your baseline.' };
+    case 'buy_meme':
+      return s.meme ? { ok: true } : { ok: false, reason: 'Meme / new tokens are disabled in your baseline.' };
+    case 'supply_stable':
+      return s.stablecoin ? { ok: true } : { ok: false, reason: 'Stablecoin yield is disabled in your baseline.' };
+    default:
+      return { ok: true };
+  }
+}
+
+// Preview check — mirrors the exact bounds the ZK circuit enforces, so what the
+// preview says matches what the proof will later prove.
+function checkAgainstBaseline(actionType, amount) {
+  const category = checkCategory(actionType);
+  if (!category.ok) {
+    return { pass: false, conflict: true, reason: category.reason };
+  }
+
+  const p = ACTION_PROFILE[actionType] || ACTION_PROFILE.buy_spot;
+  const positionPct = (amount / PORTFOLIO_SIZE) * 100;
+  const s = baselineSettings;
+  const riskLimit = s.riskTolerance * 10;
+  const leverageLimit = s.futures ? 10 : 1;
+
+  if (p.risk > riskLimit) {
+    return { pass: false, conflict: true, reason: `Action risk score (${p.risk}) exceeds your risk tolerance limit (${riskLimit}).` };
+  }
+  if (positionPct > s.concentration) {
+    return { pass: false, conflict: true, reason: `Position size (${positionPct.toFixed(1)}%) exceeds your concentration limit (${s.concentration}%).` };
+  }
+  if (p.leverage > leverageLimit) {
+    return { pass: false, conflict: true, reason: `Leverage (${p.leverage}x) exceeds your allowed maximum (${leverageLimit}x).` };
+  }
+
+  return { pass: true, reason: 'Within every baseline bound — the ZK proof will confirm this.' };
+}
+
+async function executeAction() {
+  if (!agentRegistered) {
+    alert('Please register an agent first.');
+    return;
+  }
+  if (!ZK.ready) {
+    alert('The zero-knowledge engine is still loading. Please wait a moment and try again.');
+    return;
+  }
+
+  const actionType = document.getElementById('actionType').value;
+  const amount = parseInt(document.getElementById('tradeAmount').value);
+
+  const actionLabels = {
+    buy_spot: 'Buy ETH (Spot)',
+    buy_futures: 'Open BTC Long (10x Futures)',
+    buy_meme: 'Buy PEPE (Meme Coin)',
+    supply_stable: 'Supply USDC to Aave',
+    sell_spot: 'Sell ETH (Spot)'
+  };
+  const actionLabel = actionLabels[actionType];
+
+  // ---- Layer 1: prove compliance on this device ----
+  let zk;
+  try {
+    zk = await generateZKProof(actionType, amount, showZKProgress);
+  } catch (err) {
+    console.error(err);
+    showZKError(err);
+    return;
+  }
+  renderZKResult(zk);
+
+  // The proof decides numeric compliance; asset-category rules stay in the
+  // policy layer, which the 4-lane circuit deliberately does not model.
+  const category = checkCategory(actionType);
+  const zkPass = zk.compliant;
+  const pass = zkPass && category.ok;
+
+  const reason = !zkPass
+    ? 'The zero-knowledge proof shows this action breaks at least one of your baseline bounds.'
+    : (!category.ok ? category.reason : '');
+
+  const actionHash = zk.actionHash;
+  const zkProofHash = ethers.utils.keccak256(
+    ethers.utils.toUtf8Bytes(JSON.stringify(zk.proof))
+  );
+
+  const pending = { actionType, amount, actionLabel, actionHash, zkProofHash, zk };
+
+  if (!pass) {
+    // Layer 4: present the conflict — the user decides.
+    document.getElementById('conflictInstruction').textContent =
+      actionLabel + ' ($' + amount.toLocaleString() + ')';
+    document.getElementById('conflictReason').textContent = reason;
+    document.getElementById('conflictModal').classList.add('active');
+    window.pendingAction = pending;
+    return;
+  }
+
+  await attestAction(actionLabel, actionHash, zkProofHash, true, 'authorized', zk);
+}
+
+function closeConflict(choice) {
+  document.getElementById('conflictModal').classList.remove('active');
+
+  const p = window.pendingAction;
+  if (!p) return;
+
+  if (choice === 'cancel') {
+    attestAction(p.actionLabel, p.actionHash, p.zkProofHash, false, 'conflict', p.zk);
+  } else if (choice === 'override') {
+    // User overrides - attest as authorized (user accepted the risk)
+    attestAction(p.actionLabel + ' (user override)', p.actionHash, p.zkProofHash, true, 'authorized', p.zk);
+  } else {
+    alert('In a full implementation, this would take you to the baseline settings to adjust your preferences.');
+    attestAction(p.actionLabel, p.actionHash, p.zkProofHash, false, 'conflict', p.zk);
+  }
+}
+
+async function attestAction(actionLabel, actionHash, zkProofHash, isVerified, result, zk) {
+  if (isSimulating) {
+    await sleep(600);
+  } else {
+    let attestedOnChain = false;
+
+    // Trustless path: ZKActionAttestor re-verifies the Groth16 proof itself,
+    // instead of trusting the caller's isVerified flag.
+    if (CONTRACT_ADDRESSES.zkActionAttestor && zkAttestorContract && zk) {
+      try {
+        const call = await snarkjs.groth16.exportSolidityCallData(zk.proof, zk.publicSignals);
+        const [pA, pB, pC, pub] = JSON.parse('[' + call + ']');
+        const tx = await zkAttestorContract.attestAction(actionHash, pA, pB, pC, pub);
+        await tx.wait();
+        attestedOnChain = true;
+      } catch (e) {
+        // Most likely the connected wallet is not a registered agent inheriting
+        // this baseline — fall through to the legacy attestor so the demo keeps working.
+        console.warn('[MIRROR] on-chain ZK attestation reverted:', e.reason || e.message);
+      }
+    }
+
+    if (!attestedOnChain && attestorContract) {
+      try {
+        const tx = await attestorContract.attestAction(actionHash, zkProofHash, isVerified, result);
+        await tx.wait();
+      } catch (e) {
+        // Continue even if tx fails in demo
+        console.error(e);
+      }
+    }
+  }
+  
+  // Update stats
+  if (result === 'authorized') {
+    authorizedCount++;
+    document.getElementById('statAuthorized').textContent = authorizedCount;
+  } else {
+    blockedCount++;
+    document.getElementById('statBlocked').textContent = blockedCount;
+  }
+  
+  // Add to activity
+  const now = new Date();
+  activity.unshift({
+    action: actionLabel,
+    result: result,
+    hash: actionHash,
+    time: now.toLocaleTimeString()
+  });
+  
+  // Update stats
+  const total = authorizedCount + blockedCount;
+  document.getElementById('totalAttestations').textContent = total;
+  const rate = total > 0 ? Math.round((authorizedCount / total) * 100) : 0;
+  document.getElementById('verificationRate').textContent = rate + '%';
+  
+  // Render activity log
+  renderActivity();
+  
+  unlockStep(5);
+}
+
+function renderActivity() {
+  const log = document.getElementById('activityLog');
+  if (activity.length === 0) {
+    log.innerHTML = '<div style="text-align: center; color: #666; padding: 30px; font-size: 13px;">No actions yet.</div>';
+    return;
+  }
+  
+  log.innerHTML = activity.map(a => `
+    <div class="activity-item">
+      <div class="activity-dot ${a.result}"></div>
+      <div class="activity-content">
+        <div class="activity-action">${a.action}</div>
+        <div class="activity-result">Result: <strong style="color: ${a.result === 'authorized' ? '#10b981' : a.result === 'conflict' ? '#f59e0b' : '#ef4444'}">${a.result.toUpperCase()}</strong></div>
+        <div class="activity-time">${a.time} · ${a.hash.substring(0, 18)}...</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============ Utils ============
+function simpleHash(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  // Make it look like a keccak hash
+  let hex = Math.abs(hash).toString(16).padStart(8, '0');
+  // Pad to 64 chars (keccak256 length)
+  for (let i = 0; i < 56; i++) {
+    hex += Math.floor(Math.random() * 16).toString(16);
+  }
+  return hex;
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Initialize
+initZKEngine();
+updateActionPreview();
+</script>
+
+</body>
+</html>
