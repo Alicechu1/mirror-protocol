@@ -1,0 +1,332 @@
+[
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_personaBaseline",
+                           "type":  "address"
+                       }
+                   ],
+        "stateMutability":  "nonpayable",
+        "type":  "constructor"
+    },
+    {
+        "anonymous":  false,
+        "inputs":  [
+                       {
+                           "indexed":  true,
+                           "internalType":  "address",
+                           "name":  "agent",
+                           "type":  "address"
+                       },
+                       {
+                           "indexed":  false,
+                           "internalType":  "bool",
+                           "name":  "isAuthorized",
+                           "type":  "bool"
+                       }
+                   ],
+        "name":  "AgentAuthorizationChanged",
+        "type":  "event"
+    },
+    {
+        "anonymous":  false,
+        "inputs":  [
+                       {
+                           "indexed":  true,
+                           "internalType":  "address",
+                           "name":  "agent",
+                           "type":  "address"
+                       },
+                       {
+                           "indexed":  true,
+                           "internalType":  "address",
+                           "name":  "parentAgent",
+                           "type":  "address"
+                       },
+                       {
+                           "indexed":  false,
+                           "internalType":  "bytes32",
+                           "name":  "baselineHash",
+                           "type":  "bytes32"
+                       },
+                       {
+                           "indexed":  false,
+                           "internalType":  "uint256",
+                           "name":  "generation",
+                           "type":  "uint256"
+                       }
+                   ],
+        "name":  "AgentGenerationCreated",
+        "type":  "event"
+    },
+    {
+        "anonymous":  false,
+        "inputs":  [
+                       {
+                           "indexed":  true,
+                           "internalType":  "address",
+                           "name":  "agent",
+                           "type":  "address"
+                       },
+                       {
+                           "indexed":  true,
+                           "internalType":  "address",
+                           "name":  "user",
+                           "type":  "address"
+                       },
+                       {
+                           "indexed":  false,
+                           "internalType":  "bytes32",
+                           "name":  "baselineHash",
+                           "type":  "bytes32"
+                       },
+                       {
+                           "indexed":  false,
+                           "internalType":  "uint256",
+                           "name":  "generation",
+                           "type":  "uint256"
+                       }
+                   ],
+        "name":  "AgentRegistered",
+        "type":  "event"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_agent",
+                           "type":  "address"
+                       }
+                   ],
+        "name":  "getAgent",
+        "outputs":  [
+                        {
+                            "internalType":  "address",
+                            "name":  "user",
+                            "type":  "address"
+                        },
+                        {
+                            "internalType":  "bytes32",
+                            "name":  "baselineHash",
+                            "type":  "bytes32"
+                        },
+                        {
+                            "internalType":  "uint256",
+                            "name":  "generation",
+                            "type":  "uint256"
+                        },
+                        {
+                            "internalType":  "address",
+                            "name":  "parentAgent",
+                            "type":  "address"
+                        },
+                        {
+                            "internalType":  "bool",
+                            "name":  "isAuthorized",
+                            "type":  "bool"
+                        },
+                        {
+                            "internalType":  "uint256",
+                            "name":  "registeredAt",
+                            "type":  "uint256"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_agent",
+                           "type":  "address"
+                       }
+                   ],
+        "name":  "getAgentBaseline",
+        "outputs":  [
+                        {
+                            "internalType":  "bytes32",
+                            "name":  "",
+                            "type":  "bytes32"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_agent",
+                           "type":  "address"
+                       }
+                   ],
+        "name":  "getAgentGeneration",
+        "outputs":  [
+                        {
+                            "internalType":  "uint256",
+                            "name":  "",
+                            "type":  "uint256"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_agent",
+                           "type":  "address"
+                       }
+                   ],
+        "name":  "getParentAgent",
+        "outputs":  [
+                        {
+                            "internalType":  "address",
+                            "name":  "",
+                            "type":  "address"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_user",
+                           "type":  "address"
+                       }
+                   ],
+        "name":  "getUserAgentCount",
+        "outputs":  [
+                        {
+                            "internalType":  "uint256",
+                            "name":  "",
+                            "type":  "uint256"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_user",
+                           "type":  "address"
+                       }
+                   ],
+        "name":  "getUserAgents",
+        "outputs":  [
+                        {
+                            "internalType":  "address[]",
+                            "name":  "",
+                            "type":  "address[]"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_agent",
+                           "type":  "address"
+                       }
+                   ],
+        "name":  "isAgentAuthorized",
+        "outputs":  [
+                        {
+                            "internalType":  "bool",
+                            "name":  "",
+                            "type":  "bool"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+
+                   ],
+        "name":  "personaBaseline",
+        "outputs":  [
+                        {
+                            "internalType":  "contract IPersonaBaseline",
+                            "name":  "",
+                            "type":  "address"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_agent",
+                           "type":  "address"
+                       },
+                       {
+                           "internalType":  "bytes32",
+                           "name":  "_baselineHash",
+                           "type":  "bytes32"
+                       }
+                   ],
+        "name":  "registerAgent",
+        "outputs":  [
+
+                    ],
+        "stateMutability":  "nonpayable",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_newAgent",
+                           "type":  "address"
+                       },
+                       {
+                           "internalType":  "address",
+                           "name":  "_parentAgent",
+                           "type":  "address"
+                       },
+                       {
+                           "internalType":  "bytes32",
+                           "name":  "_baselineHash",
+                           "type":  "bytes32"
+                       }
+                   ],
+        "name":  "registerAgentGeneration",
+        "outputs":  [
+
+                    ],
+        "stateMutability":  "nonpayable",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_agent",
+                           "type":  "address"
+                       },
+                       {
+                           "internalType":  "bool",
+                           "name":  "_isAuthorized",
+                           "type":  "bool"
+                       }
+                   ],
+        "name":  "setAgentAuthorization",
+        "outputs":  [
+
+                    ],
+        "stateMutability":  "nonpayable",
+        "type":  "function"
+    }
+]
