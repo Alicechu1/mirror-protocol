@@ -24,11 +24,17 @@
 
 ---
 
-### 🎬 Watch the 3-min ZK Demo
+### 🎬 3-min ZK Demo & Live Demo
 
-<a href="https://alicechu1.github.io/mirror-protocol/">
-  <img src="https://img.shields.io/badge/▶_Live_Demo-try_it_in_your_browser-667eea?style=for-the-badge" alt="Live Demo">
-</a>
+<p align="center">
+  <a href="https://github.com/Alicechu1/mirror-protocol/releases/download/v1.0.0-zk-demo/mirror-zk-demo.mp4">
+    <img src="https://img.shields.io/badge/▶_Watch_Demo_Video-MP4_·_17MB-7c3aed?style=for-the-badge" alt="Watch Demo Video">
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://alicechu1.github.io/mirror-protocol/">
+    <img src="https://img.shields.io/badge/🌐_Live_Demo-try_in_browser-667eea?style=for-the-badge" alt="Live Demo">
+  </a>
+</p>
 
 > Browser-side Groth16 proof generation · On-chain verifier · Zero-tolerance circuit breaker
 > All live on **Monad Testnet**.
