@@ -1,45 +1,93 @@
 name: mirror-protocol-indexer
-version: 1.0.1
 description: Envio HyperIndex for MIRROR Protocol on Monad
+version: 0.0.1
 schema:
   file: ./schema.graphql
-networks:
-  - id: 143
-    name: Monad
-    rpc_config:
-      url: https://monad.rpc.hypersync.xyz
-    start_block: 1000000
-contracts:
-  - name: PersonaBaseline
-    network: Monad
-    abi_file_path: ./abis/PersonaBaseline.json
-    address: ["0x6eFE4b72F01Fde571C4Ed4c05EDe910F2f9E1435"]
-    handler: ./src/EventHandlers.js
-    events:
-      - name: BaselineRegistered
-      - name: BaselineUpdated
-  - name: AgentRegistry
-    network: Monad
-    abi_file_path: ./abis/AgentRegistry.json
-    address: ["0x4F464CD9Fa81ECC19366AA382266b10e2A2C1443"]
-    handler: ./src/EventHandlers.js
-    events:
-      - name: AgentRegistered
-      - name: AgentAuthorizationChanged
-  - name: ActionAttestor
-    network: Monad
-    abi_file_path: ./abis/ActionAttestor.json
-    address: ["0xbE8af04d2dae81eb4bd9Bc2aA64303520d324146"]
-    handler: ./src/EventHandlers.js
-    events:
-      - name: ActionAttested
-      - name: CircuitBreakerTriggered
-  - name: ZKActionAttestor
-    network: Monad
-    abi_file_path: ./abis/ZKActionAttestor.json
-    address: ["0x976797046FA9d3b7C730686097bdbFF4bEE913Fb"]
-    handler: ./src/EventHandlers.js
-    events:
-      - name: ZKActionAttested
-      - name: ZKVerificationRejected
-      - name: ZKCircuitBreakerTriggered
+dataSources:
+  - kind: ethereum
+    name: PersonaBaseline
+    network: monad
+    source:
+      address: "0x6eFE4b72F01Fde571C4Ed4c05EDe910F2f9E1435"
+      abi: PersonaBaseline
+      startBlock: 1000000
+    mapping:
+      apiVersion: 0.0.1
+      language: javascript
+      entities:
+        - BaselineRegistered
+        - BaselineUpdated
+      abis:
+        - name: PersonaBaseline
+          file: ./abis/PersonaBaseline.json
+      eventHandlers:
+        - event: BaselineRegistered(address indexed,bytes32,uint256)
+          handler: handleBaselineRegistered
+        - event: BaselineUpdated(address indexed,bytes32,uint256)
+          handler: handleBaselineUpdated
+  - kind: ethereum
+    name: AgentRegistry
+    network: monad
+    source:
+      address: "0x4F464CD9Fa81ECC19366AA382266b10e2A2C1443"
+      abi: AgentRegistry
+      startBlock: 1000000
+    mapping:
+      apiVersion: 0.0.1
+      language: javascript
+      entities:
+        - AgentRegistered
+        - AgentAuthorizationChanged
+      abis:
+        - name: AgentRegistry
+          file: ./abis/AgentRegistry.json
+      eventHandlers:
+        - event: AgentRegistered(address indexed,address indexed,bytes32,uint256)
+          handler: handleAgentRegistered
+        - event: AgentAuthorizationChanged(address indexed,bool)
+          handler: handleAgentAuthorizationChanged
+  - kind: ethereum
+    name: ActionAttestor
+    network: monad
+    source:
+      address: "0xbE8af04d2dae81eb4bd9Bc2aA64303520d324146"
+      abi: ActionAttestor
+      startBlock: 1000000
+    mapping:
+      apiVersion: 0.0.1
+      language: javascript
+      entities:
+        - ActionAttested
+        - CircuitBreakerTriggered
+      abis:
+        - name: ActionAttestor
+          file: ./abis/ActionAttestor.json
+      eventHandlers:
+        - event: ActionAttested(uint256 indexed,address indexed,bytes32,bool,uint256)
+          handler: handleActionAttested
+        - event: CircuitBreakerTriggered(address indexed,uint256,string)
+          handler: handleCircuitBreakerTriggered
+  - kind: ethereum
+    name: ZKActionAttestor
+    network: monad
+    source:
+      address: "0x976797046FA9d3b7C730686097bdbFF4bEE913Fb"
+      abi: ZKActionAttestor
+      startBlock: 1000000
+    mapping:
+      apiVersion: 0.0.1
+      language: javascript
+      entities:
+        - ZKActionAttested
+        - ZKVerificationRejected
+        - ZKCircuitBreakerTriggered
+      abis:
+        - name: ZKActionAttestor
+          file: ./abis/ZKActionAttestor.json
+      eventHandlers:
+        - event: ZKActionAttested(uint256 indexed,address indexed,bytes32,uint256,uint256,bool,uint256)
+          handler: handleZKActionAttested
+        - event: ZKVerificationRejected(address indexed,uint256,uint256,string)
+          handler: handleZKVerificationRejected
+        - event: ZKCircuitBreakerTriggered(address indexed,uint256 indexed,uint256)
+          handler: handleZKCircuitBreakerTriggered
