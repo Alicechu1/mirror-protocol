@@ -1,20 +1,13 @@
 name: mirror-protocol-indexer
 description: Envio HyperIndex for MIRROR Protocol on Monad
-version: 1.0.1
 
 contracts:
   - name: ZKActionAttestor
     abi_file_path: ./abis/ZKActionAttestor.json
-    handler: ./src/EventHandlers.js
-    events:
-      - ZKActionAttested
 
 networks:
   - id: 143
-    name: Monad
-    rpc_config:
-      url: https://monad.rpc.hypersync.xyz
     start_block: 3000000
     contracts:
       - name: ZKActionAttestor
-        address: ["0x976797046FA9d3b7C730686097bdbFF4bEE913Fb"]
+        address: 0x976797046FA9d3b7C730686097bdbFF4bEE913Fb
