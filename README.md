@@ -20,6 +20,7 @@
 [![Monad](https://img.shields.io/badge/Built%20on-Monad-6366f1.svg)](https://monad.xyz/)
 [![Track 04](https://img.shields.io/badge/Track-04_Trust%2C%20Identity%20%26%20AI%20Infra-purple.svg)](https://monad.xyz/developers/hackathons/metropolis)
 [![ZK: Groth16](https://img.shields.io/badge/ZK-Groth16_·_Poseidon_·_Circom-7c3aed.svg)](#-zero-knowledge-proofs-live-on-monad)
+[![Mera Passkey](https://img.shields.io/badge/Powered_by-Mera_Passkey-orange.svg)](#-passkey--mera-integration)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
@@ -36,7 +37,7 @@
   </a>
 </p>
 
-> Browser-side Groth16 proof generation · On-chain verifier · Zero-tolerance circuit breaker
+> Browser-side Groth16 proof generation · Passkey-first UX with Mera · On-chain verifier · Zero-tolerance circuit breaker
 > All live on **Monad Testnet**.
 
 ---
@@ -102,6 +103,62 @@ The **ZKActionAttestor** does not trust the caller. It:
 | [Violating attestation](https://testnet.monadvision.com/tx/0x0eeb17ef1c8d1c2e197a68e9d64cbf51555b906c7dbd7bbe05c95cbdbec9e629) | ❌ matchResult = 0 | `ZKActionAttested` + **`ZKCircuitBreakerTriggered`** (2 logs) |
 
 **Why both transactions succeed?** MIRROR is non-repudiation-first. A violation never reverts — it gets attested on-chain and simultaneously fires the circuit breaker. The evidence is permanent.
+
+---
+
+## 🔐 Passkey + Mera Integration
+
+> **No seed phrase. No extension. One biometric tap → wallet + baseline, both derived from your passkey.**
+
+MIRROR integrates **[Mera](https://mera.category.xyz/)** by Category Labs — a passkey-first wallet SDK using the **WebAuthn PRF extension**. This eliminates the biggest UX friction in crypto onboarding while enabling a novel pattern: **PRF-derived persona baselines**.
+
+### Two Bounties, One Integration
+
+| 🏆 Mera Bounty | How MIRROR Wins It |
+|----------------|---------------------|
+| **Most Creative Use of Mera** | Passkey PRF output → deterministic 4-lane persona baseline vector. Same passkey → same baseline on any device, zero server storage. |
+| **Best UX Using Mera** | One-tap passkey login → wallet auto-derived → no seed phrase backup, no extension install. Sign transactions directly with passkey. |
+
+### How It Works
+
+```
+          ┌──────────────────────┐
+          │   WebAuthn Passkey   │
+          │   (biometric tap)    │
+          └──────────┬───────────┘
+                     │
+                     ▼
+          ┌──────────────────────┐
+          │   PRF Output (32B)   │   ← deterministic, same on all devices
+          └──────────┬───────────┘
+                     │
+         ┌───────────┴───────────┐
+         ▼                       ▼
+┌──────────────────┐    ┌──────────────────┐
+│  Wallet Derive   │    │  Baseline Derive  │
+│  (wallet salt)   │    │  (baseline salt) │
+│                  │    │                  │
+│  secp256k1 key   │    │  4-lane vector   │
+│  → EVM address   │    │  → Poseidon cm.  │
+└──────────────────┘    └──────────────────┘
+```
+
+**Key insight**: Different PRF salts produce independent outputs. We use two namespaces:
+- `mirror.wallet.v1` → derives the signing key for on-chain transactions
+- `mirror.baseline.v1` → derives the 4-lane baseline vector (risk, daily loss, concentration, asset categories)
+
+### Why This Matters
+
+1. **No seed phrase, ever** — The passkey IS the key. Lost phone? Just re-authenticate on a new device with the same passkey.
+2. **Baseline portability** — Your persona baseline travels with you. Same passkey on a new laptop → same baseline → same agent behavior.
+3. **Zero-knowledge friendly** — The baseline derived from your passkey feeds directly into the ZK circuit. Your biometrics never leave your device; only the Poseidon commitment goes on-chain.
+4. **Serverless identity** — We don't store your baseline. You don't store your baseline. The passkey hardware stores the PRF secret.
+
+### Try It
+
+Open the [**Live Demo**](https://alicechu1.github.io/mirror-protocol/) → click **"🔐 Create Passkey (Mera)"** → follow the WebAuthn prompt → your baseline is derived instantly.
+
+> Requires a passkey-capable authenticator (Touch ID, Face ID, Windows Hello, 1Password, etc.) over HTTPS or localhost.
 
 ---
 
