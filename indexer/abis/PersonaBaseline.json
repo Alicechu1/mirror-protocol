@@ -1,0 +1,169 @@
+[
+    {
+        "anonymous":  false,
+        "inputs":  [
+                       {
+                           "indexed":  true,
+                           "internalType":  "address",
+                           "name":  "user",
+                           "type":  "address"
+                       },
+                       {
+                           "indexed":  false,
+                           "internalType":  "bytes32",
+                           "name":  "commitmentHash",
+                           "type":  "bytes32"
+                       },
+                       {
+                           "indexed":  false,
+                           "internalType":  "uint256",
+                           "name":  "timestamp",
+                           "type":  "uint256"
+                       }
+                   ],
+        "name":  "BaselineRegistered",
+        "type":  "event"
+    },
+    {
+        "anonymous":  false,
+        "inputs":  [
+                       {
+                           "indexed":  true,
+                           "internalType":  "address",
+                           "name":  "user",
+                           "type":  "address"
+                       },
+                       {
+                           "indexed":  false,
+                           "internalType":  "bytes32",
+                           "name":  "newCommitmentHash",
+                           "type":  "bytes32"
+                       },
+                       {
+                           "indexed":  false,
+                           "internalType":  "uint256",
+                           "name":  "timestamp",
+                           "type":  "uint256"
+                       }
+                   ],
+        "name":  "BaselineUpdated",
+        "type":  "event"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_user",
+                           "type":  "address"
+                       }
+                   ],
+        "name":  "getBaseline",
+        "outputs":  [
+                        {
+                            "internalType":  "bytes32",
+                            "name":  "commitmentHash",
+                            "type":  "bytes32"
+                        },
+                        {
+                            "internalType":  "uint256",
+                            "name":  "createdAt",
+                            "type":  "uint256"
+                        },
+                        {
+                            "internalType":  "uint256",
+                            "name":  "updatedAt",
+                            "type":  "uint256"
+                        },
+                        {
+                            "internalType":  "bool",
+                            "name":  "isActive",
+                            "type":  "bool"
+                        },
+                        {
+                            "internalType":  "string",
+                            "name":  "metadataURI",
+                            "type":  "string"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_user",
+                           "type":  "address"
+                       }
+                   ],
+        "name":  "getBaselineHash",
+        "outputs":  [
+                        {
+                            "internalType":  "bytes32",
+                            "name":  "",
+                            "type":  "bytes32"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "_user",
+                           "type":  "address"
+                       }
+                   ],
+        "name":  "hasActiveBaseline",
+        "outputs":  [
+                        {
+                            "internalType":  "bool",
+                            "name":  "",
+                            "type":  "bool"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "bytes32",
+                           "name":  "_commitmentHash",
+                           "type":  "bytes32"
+                       },
+                       {
+                           "internalType":  "string",
+                           "name":  "_metadataURI",
+                           "type":  "string"
+                       }
+                   ],
+        "name":  "registerBaseline",
+        "outputs":  [
+
+                    ],
+        "stateMutability":  "nonpayable",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "bytes32",
+                           "name":  "_newCommitmentHash",
+                           "type":  "bytes32"
+                       },
+                       {
+                           "internalType":  "string",
+                           "name":  "_newMetadataURI",
+                           "type":  "string"
+                       }
+                   ],
+        "name":  "updateBaseline",
+        "outputs":  [
+
+                    ],
+        "stateMutability":  "nonpayable",
+        "type":  "function"
+    }
+]
