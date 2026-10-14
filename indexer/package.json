@@ -1,0 +1,14 @@
+{
+  "name": "mirror-protocol-indexer",
+  "version": "1.0.0",
+  "description": "Envio HyperIndex for MIRROR Protocol on Monad Testnet",
+  "scripts": {
+    "dev": "envio dev",
+    "build": "envio build",
+    "start": "envio start"
+  },
+  "dependencies": {
+    "envio": "^2.0.0"
+  },
+  "license": "MIT"
+}
