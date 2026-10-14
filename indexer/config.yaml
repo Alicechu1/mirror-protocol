@@ -1,49 +1,20 @@
 name: mirror-protocol-indexer
 description: Envio HyperIndex for MIRROR Protocol on Monad
-version: 1.0.0
+version: 1.0.1
 
 contracts:
-  - name: PersonaBaseline
-    abi_file_path: ./abis/PersonaBaseline.json
-    handler: ./src/EventHandlers.js
-    events:
-      - BaselineRegistered
-      - BaselineUpdated
-
-  - name: AgentRegistry
-    abi_file_path: ./abis/AgentRegistry.json
-    handler: ./src/EventHandlers.js
-    events:
-      - AgentRegistered
-      - AgentAuthorizationChanged
-
-  - name: ActionAttestor
-    abi_file_path: ./abis/ActionAttestor.json
-    handler: ./src/EventHandlers.js
-    events:
-      - ActionAttested
-      - CircuitBreakerTriggered
-
   - name: ZKActionAttestor
     abi_file_path: ./abis/ZKActionAttestor.json
     handler: ./src/EventHandlers.js
     events:
       - ZKActionAttested
-      - ZKVerificationRejected
-      - ZKCircuitBreakerTriggered
 
 networks:
   - id: 143
     name: Monad
     rpc_config:
       url: https://monad.rpc.hypersync.xyz
-    start_block: 1000000
+    start_block: 3000000
     contracts:
-      - name: PersonaBaseline
-        address: ["0x6eFE4b72F01Fde571C4Ed4c05EDe910F2f9E1435"]
-      - name: AgentRegistry
-        address: ["0x4F464CD9Fa81ECC19366AA382266b10e2A2C1443"]
-      - name: ActionAttestor
-        address: ["0xbE8af04d2dae81eb4bd9Bc2aA64303520d324146"]
       - name: ZKActionAttestor
         address: ["0x976797046FA9d3b7C730686097bdbFF4bEE913Fb"]
