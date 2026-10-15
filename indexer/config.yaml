@@ -12,3 +12,5 @@ chains:
     contracts:
       - name: ZKActionAttestor
         address: "0x976797046FA9d3b7C730686097bdbFF4bEE913Fb"
+
+handler: src/EventHandlers.js
