@@ -1,5 +1,5 @@
 name: mirror-protocol-indexer
-description: Envio HyperIndex for MIRROR Protocol on Monad
+description: Envio HyperIndex for MIRROR Protocol on Monad testnet (chain 10143)
 
 contracts:
   - name: ZKActionAttestor
