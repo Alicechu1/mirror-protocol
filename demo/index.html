@@ -789,6 +789,51 @@
     background: linear-gradient(135deg, #10b981, #059669);
   }
 
+  .chain-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(100, 100, 120, 0.15);
+    border: 1px solid rgba(100, 100, 120, 0.3);
+    color: #888;
+    transition: all 0.3s ease;
+  }
+  .chain-status-badge.loading {
+    color: #8b5cf6;
+    background: rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.3);
+  }
+  .chain-status-badge.online {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+  .chain-status-badge.error {
+    color: #666;
+    background: rgba(100, 100, 120, 0.1);
+  }
+  .chain-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.8;
+  }
+  .chain-status-badge.loading .chain-status-dot {
+    animation: statusPulse 1.2s ease-in-out infinite;
+  }
+  .chain-status-badge.online .chain-status-dot {
+    box-shadow: 0 0 6px currentColor;
+  }
+  @keyframes statusPulse {
+    0%, 100% { opacity: 0.4; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.1); }
+  }
+
   .container {
     max-width: 1100px;
     margin: 0 auto;
@@ -2630,7 +2675,13 @@
     </div>
 
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-      <h4 style="margin: 0; color: #d0d0e0;">Recent Activity</h4>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <h4 style="margin: 0; color: #d0d0e0;">Recent Activity</h4>
+        <span class="chain-status-badge" id="chainStatusBadge">
+          <span class="chain-status-dot"></span>
+          <span class="chain-status-text">offline</span>
+        </span>
+      </div>
       <button class="chain-load-btn" id="chainLoadBtn" onclick="loadOnChainEvents()">
         🔗 Load from Chain
       </button>
@@ -4514,11 +4565,22 @@ const ZK_ATTESTOR_ABI = [
 const ZK_ATTESTOR_ADDR = "0x976797046FA9d3b7C730686097bdbFF4bEE913Fb";
 const ZK_ATTESTOR_START_BLOCK = 3000000;
 
-async function loadOnChainEvents() {
+function updateChainStatus(status, text) {
+  const badge = document.getElementById('chainStatusBadge');
+  if (!badge) return;
+  badge.className = 'chain-status-badge ' + status;
+  const textEl = badge.querySelector('.chain-status-text');
+  if (textEl) textEl.textContent = text;
+}
+
+async function loadOnChainEvents(silent = false) {
   const btn = document.getElementById('chainLoadBtn');
-  btn.disabled = true;
-  btn.classList.add('loading');
-  btn.textContent = '⏳ Loading...';
+  if (!silent) {
+    btn.disabled = true;
+    btn.classList.add('loading');
+    btn.textContent = '⏳ Loading...';
+  }
+  updateChainStatus('loading', 'syncing');
 
   try {
     const provider = new ethers.providers.JsonRpcProvider(MONAD_RPC_URL);
@@ -4532,14 +4594,17 @@ async function loadOnChainEvents() {
     const events = await contract.queryFilter(filter, fromBlock, currentBlock);
     
     if (events.length === 0) {
-      btn.textContent = '🔍 No events found';
-      btn.classList.remove('loading');
-      btn.classList.add('success');
-      setTimeout(() => {
-        btn.textContent = '🔗 Load from Chain';
-        btn.classList.remove('success');
-        btn.disabled = false;
-      }, 2000);
+      updateChainStatus('online', '0 events');
+      if (!silent) {
+        btn.textContent = '🔍 No events found';
+        btn.classList.remove('loading');
+        btn.classList.add('success');
+        setTimeout(() => {
+          btn.textContent = '🔗 Load from Chain';
+          btn.classList.remove('success');
+          btn.disabled = false;
+        }, 2000);
+      }
       return;
     }
 
@@ -4573,23 +4638,29 @@ async function loadOnChainEvents() {
     document.getElementById('totalAttestations').textContent = total;
     document.getElementById('verificationRate').textContent = rate + '%';
 
-    btn.textContent = `✅ ${events.length} events loaded`;
-    btn.classList.remove('loading');
-    btn.classList.add('success');
-    setTimeout(() => {
-      btn.textContent = '🔗 Refresh from Chain';
-      btn.classList.remove('success');
-      btn.disabled = false;
-    }, 3000);
+    updateChainStatus('online', events.length + ' on-chain');
+    if (!silent) {
+      btn.textContent = `✅ ${events.length} events loaded`;
+      btn.classList.remove('loading');
+      btn.classList.add('success');
+      setTimeout(() => {
+        btn.textContent = '🔗 Refresh from Chain';
+        btn.classList.remove('success');
+        btn.disabled = false;
+      }, 3000);
+    }
 
   } catch (err) {
     console.warn('[MIRROR] Failed to load on-chain events:', err);
-    btn.textContent = '❌ Failed — try again';
-    btn.classList.remove('loading');
-    setTimeout(() => {
-      btn.textContent = '🔗 Load from Chain';
-      btn.disabled = false;
-    }, 2000);
+    updateChainStatus('error', 'offline');
+    if (!silent) {
+      btn.textContent = '❌ Failed — try again';
+      btn.classList.remove('loading');
+      setTimeout(() => {
+        btn.textContent = '🔗 Load from Chain';
+        btn.disabled = false;
+      }, 2000);
+    }
   }
 }
 
@@ -5273,6 +5344,12 @@ document.addEventListener('DOMContentLoaded', () => {
   updateActionPreview();
   // Initialize A2A mini radars
   updateA2AMiniRadars();
+  // Auto-load on-chain events after a delay (wait for ethers.js to be ready)
+  setTimeout(() => {
+    if (typeof ethers !== 'undefined') {
+      loadOnChainEvents(true); // silent mode
+    }
+  }, 2000);
 });
 
 // ============ Step 7: A2A Trust Protocol ============
