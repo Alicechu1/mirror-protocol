@@ -561,6 +561,60 @@
     padding: 30px;
   }
 
+  /* ===== Scenario Switcher ===== */
+  .scenario-switcher {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+
+  .scenario-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #1a1a2a;
+    border: 1px solid #2a2a3a;
+    border-radius: 24px;
+    color: #888;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .scenario-tab:hover {
+    border-color: #4a4a6a;
+    color: #d0d0e0;
+    transform: translateY(-1px);
+  }
+
+  .scenario-tab.active {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.15));
+    border-color: #667eea;
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
+  }
+
+  .scenario-tab-icon {
+    font-size: 16px;
+  }
+
+  .scenario-tab-label {
+    white-space: nowrap;
+  }
+
+  .scenario-fade-enter {
+    animation: scenarioFadeIn 0.4s ease-out;
+  }
+
+  @keyframes scenarioFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
   .hero {
     text-align: center;
     margin-bottom: 40px;
@@ -1307,16 +1361,32 @@
 <div class="container">
 
   <div class="hero">
+    <!-- Scenario Switcher -->
+    <div class="scenario-switcher" id="scenarioSwitcher">
+      <div class="scenario-tab active" data-scenario="finance" onclick="switchScenario('finance')">
+        <span class="scenario-tab-icon">💰</span>
+        <span class="scenario-tab-label">Finance</span>
+      </div>
+      <div class="scenario-tab" data-scenario="datacompliance" onclick="switchScenario('datacompliance')">
+        <span class="scenario-tab-icon">🔒</span>
+        <span class="scenario-tab-label">Data Compliance</span>
+      </div>
+      <div class="scenario-tab" data-scenario="a2a" onclick="switchScenario('a2a')">
+        <span class="scenario-tab-icon">🤝</span>
+        <span class="scenario-tab-label">A2A Trust</span>
+      </div>
+    </div>
+
     <div class="hero-badges">
       <span class="hero-badge">🔒 ZK-Proven</span>
       <span class="hero-badge">⛓ Monad Native</span>
       <span class="hero-badge">🧠 Agent Alignment</span>
     </div>
     <h2 class="hero-title">
-      <span class="hero-title-gradient">Agent Alignment,</span><br>
+      <span class="hero-title-gradient" id="heroTagline">Agent Alignment,</span><br>
       <span class="hero-title-white">Moved to the Protocol Layer</span>
     </h2>
-    <p class="hero-subtitle">
+    <p class="hero-subtitle" id="heroSubtitle">
       From "trusting the model" to "verifying behavior" — MIRROR proves on-chain that every AI agent action
       complies with your baseline persona. No black boxes. No hand-waving. Just math.
     </p>
@@ -1408,7 +1478,7 @@
     <button class="step-btn active" onclick="showStep(1)" id="step1">1. Connect Wallet</button>
     <button class="step-btn" onclick="showStep(2)" id="step2">2. Persona Baseline</button>
     <button class="step-btn" onclick="showStep(3)" id="step3">3. Register Agent</button>
-    <button class="step-btn" onclick="showStep(4)" id="step4">4. Trade & Verify</button>
+    <button class="step-btn" onclick="showStep(4)" id="step4">4. Action Verification</button>
     <button class="step-btn" onclick="showStep(5)" id="step5">5. Activity Log</button>
     <button class="step-btn" onclick="showStep(6)" id="step6">6. Drift Monitor</button>
   </div>
@@ -1471,8 +1541,8 @@
 
   <!-- Step 2: Persona Baseline -->
   <div class="panel" id="panel2">
-    <h3>Step 2: Set Your Persona Baseline</h3>
-    <p class="panel-desc">
+    <h3>Step 2: Set Your <span id="personaLabel">Persona</span> Baseline</h3>
+    <p class="panel-desc" id="baselineDesc">
       Define your trading values and boundaries. This baseline will be hashed and stored on-chain.
       Raw data stays on your device — only the commitment hash goes on-chain.
     </p>
@@ -1482,7 +1552,7 @@
         <span style="font-size: 22px;">🔐</span>
         <div>
           <div style="font-weight: 600; color: #f59e0b;">Passkey-Derived Baseline</div>
-          <div style="font-size: 12px; color: #aaa;">Your Mera passkey's PRF output deterministically generates your 4-lane baseline. Same passkey → same baseline, on any device, no server storage.</div>
+          <div style="font-size: 12px; color: #aaa;">Your Mera passkey's PRF output deterministically generates your 6-dimension baseline. Same passkey → same baseline, on any device, no server storage.</div>
         </div>
       </div>
       <button class="btn-secondary" style="margin-top: 8px; background: #f59e0b; border: none; color: #000;" onclick="deriveBaselineFromMera()">
@@ -1490,63 +1560,8 @@
       </button>
     </div>
 
-    <div class="grid-2">
-      <div>
-        <div class="form-group">
-          <label>Risk Tolerance</label>
-          <div class="slider-row">
-            <input type="range" id="riskTolerance" min="1" max="10" value="5">
-            <span class="slider-value" id="riskVal">5/10</span>
-          </div>
-          <div class="hint">How much risk are you comfortable with?</div>
-        </div>
-
-        <div class="form-group">
-          <label>Max Daily Loss (%)</label>
-          <div class="slider-row">
-            <input type="range" id="dailyLoss" min="1" max="20" value="5">
-            <span class="slider-value" id="lossVal">5%</span>
-          </div>
-          <div class="hint">Maximum loss allowed in a single day</div>
-        </div>
-
-        <div class="form-group">
-          <label>Position Concentration Limit (%)</label>
-          <div class="slider-row">
-            <input type="range" id="concentration" min="10" max="100" value="30" step="5">
-            <span class="slider-value" id="concVal">30%</span>
-          </div>
-          <div class="hint">Maximum % of portfolio in a single asset</div>
-        </div>
-      </div>
-
-      <div>
-        <label style="font-weight: 600; font-size: 14px; display: block; margin-bottom: 10px;">Asset Categories Allowed</label>
-        <div class="toggle-row">
-          <span>Spot Trading</span>
-          <div class="toggle on" onclick="toggleSwitch(this)" data-key="spot"></div>
-        </div>
-        <div class="toggle-row">
-          <span>Futures / Leverage</span>
-          <div class="toggle" onclick="toggleSwitch(this)" data-key="futures"></div>
-        </div>
-        <div class="toggle-row">
-          <span>Options</span>
-          <div class="toggle" onclick="toggleSwitch(this)" data-key="options"></div>
-        </div>
-        <div class="toggle-row">
-          <span>Stablecoin Yield</span>
-          <div class="toggle on" onclick="toggleSwitch(this)" data-key="stablecoin"></div>
-        </div>
-        <div class="toggle-row">
-          <span>DeFi Protocols</span>
-          <div class="toggle on" onclick="toggleSwitch(this)" data-key="defi"></div>
-        </div>
-        <div class="toggle-row">
-          <span>Meme / New Tokens</span>
-          <div class="toggle" onclick="toggleSwitch(this)" data-key="meme"></div>
-        </div>
-      </div>
+    <div id="baselineSliders" class="grid-2">
+      <!-- Sliders rendered dynamically by renderBaselineSliders() -->
     </div>
 
     <button class="btn-primary" style="margin-top: 24px;" onclick="registerBaseline()">
@@ -1563,7 +1578,7 @@
   <!-- Step 3: Register Agent -->
   <div class="panel" id="panel3">
     <h3>Step 3: Register Your Agent</h3>
-    <p class="panel-desc">
+    <p class="panel-desc" id="agentDesc">
       Create your first AI trading agent. The agent must inherit your persona baseline before it can act.
       This ensures safety constraints are passed from you to your agent.
     </p>
@@ -1609,10 +1624,10 @@
     </div>
   </div>
 
-  <!-- Step 4: Trade & Verify -->
+  <!-- Step 4: Action Verification -->
   <div class="panel" id="panel4">
-    <h3>Step 4: Agent Action Verification</h3>
-    <p class="panel-desc">
+    <h3 id="step4Title">Step 4: Agent Action Verification</h3>
+    <p class="panel-desc" id="step4Desc">
       Watch your agent propose trades. MIRROR proves — right here in your browser — that each action
       complies with your persona baseline, without revealing the baseline or the action.
       If an action violates your constraints, the conflict is presented to you — you decide.
@@ -1629,20 +1644,16 @@
       </div>
     </div>
 
-    <h4 style="margin-bottom: 12px; color: #d0d0e0;">Propose a Trade Action</h4>
+    <h4 style="margin-bottom: 12px; color: #d0d0e0;" id="proposeActionTitle">Propose a Trade Action</h4>
 
     <div class="form-group">
       <label>Action Type</label>
       <select id="actionType" onchange="updateActionPreview()" style="width: 100%; padding: 12px; background: #0f0f18; border: 1px solid #2a2a3a; border-radius: 8px; color: #fff; font-size: 14px;">
-        <option value="buy_spot">Buy ETH (Spot)</option>
-        <option value="buy_futures">Open BTC Long (10x Futures)</option>
-        <option value="buy_meme">Buy PEPE (Meme Coin)</option>
-        <option value="supply_stable">Supply USDC to Aave</option>
-        <option value="sell_spot">Sell ETH (Spot)</option>
+        <!-- Options rendered dynamically -->
       </select>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" id="amountGroup">
       <label>Amount (USD)</label>
       <div class="slider-row">
         <input type="range" id="tradeAmount" min="100" max="10000" value="1000" step="100">
@@ -1655,7 +1666,7 @@
       <div style="font-size: 13px; color: #d0d0e0;" id="previewText">Select an action to see if it passes your baseline...</div>
     </div>
 
-    <button class="btn-primary" onclick="executeAction()">
+    <button class="btn-primary" onclick="executeAction()" id="executeBtn">
       Execute Agent Action
     </button>
 
@@ -1669,7 +1680,7 @@
         <span class="zk-badge idle" id="zkBadge">idle</span>
       </div>
       <div class="zk-body">
-        <div class="zk-row"><span class="zk-key">Circuit</span><span class="zk-val">ActionBaselineMatch(4 lanes, 32-bit)</span></div>
+        <div class="zk-row"><span class="zk-key">Circuit</span><span class="zk-val" id="zkCircuitInfo">ActionBaselineMatch(4 lanes, 32-bit)</span></div>
         <div class="zk-row"><span class="zk-key">Constraints</span><span class="zk-val">2,101 (1,169 non-linear)</span></div>
         <div class="zk-row"><span class="zk-key">Proving system</span><span class="zk-val">Groth16 / bn128</span></div>
         <div class="zk-row"><span class="zk-key">Baseline commitment</span><span class="zk-val mono" id="zkBaseCommit">—</span></div>
@@ -1681,8 +1692,8 @@
 
   <!-- Step 5: Activity Log -->
   <div class="panel" id="panel5">
-    <h3>Step 5: On-Chain Activity Log</h3>
-    <p class="panel-desc">
+    <h3 id="step5Title">Step 5: On-Chain Activity Log</h3>
+    <p class="panel-desc" id="step5Desc">
       Every agent action is attested on-chain. Non-tamperable. Non-hideable. Auditable.
       This is Layer 5: the non-repudiation layer.
     </p>
@@ -1728,8 +1739,8 @@
 
   <!-- Step 6: Baseline Drift Monitor -->
   <div class="panel" id="panel6">
-    <h3>Step 6: Baseline Drift Monitor</h3>
-    <p class="panel-desc">
+    <h3 id="step6Title">Step 6: Baseline Drift Monitor</h3>
+    <p class="panel-desc" id="step6Desc">
       Watch your agent's behavior drift from your persona baseline in real-time.
       When drift crosses the threshold, MIRROR's circuit breaker triggers — automatically.
     </p>
@@ -1737,7 +1748,7 @@
     <div class="drift-top-row">
       <!-- Radar Chart -->
       <div class="drift-radar-container">
-        <div class="drift-radar-title">4-Dimension Baseline Radar</div>
+        <div class="drift-radar-title" id="driftRadarTitle">6-Dimension Baseline Radar</div>
         <svg id="driftRadar" viewBox="0 0 400 400" width="100%" height="100%">
           <!-- Grid rings -->
           <polygon class="radar-ring" points="200,60 321,121 321,279 200,340 79,279 79,121" />
@@ -1758,13 +1769,13 @@
           <polygon id="behaviorPolygon" class="radar-behavior" 
             points="200,100 280,145 280,255 200,300 120,255 120,145" />
           
-          <!-- Axis labels -->
-          <text class="radar-label" x="200" y="30">Risk Tolerance</text>
-          <text class="radar-label" x="365" y="105">Concentration</text>
-          <text class="radar-label" x="365" y="305">Trade Freq</text>
-          <text class="radar-label" x="200" y="385">Category Diversity</text>
-          <text class="radar-label" x="20" y="305">Leverage</text>
-          <text class="radar-label" x="20" y="105">Time Horizon</text>
+          <!-- Axis labels (dynamic) -->
+          <text class="radar-label" id="radarLabel0" x="200" y="30">Risk Tolerance</text>
+          <text class="radar-label" id="radarLabel1" x="365" y="105">Concentration</text>
+          <text class="radar-label" id="radarLabel2" x="365" y="305">Trade Freq</text>
+          <text class="radar-label" id="radarLabel3" x="200" y="385">Category Diversity</text>
+          <text class="radar-label" id="radarLabel4" x="20" y="305">Leverage</text>
+          <text class="radar-label" id="radarLabel5" x="20" y="105">Time Horizon</text>
           
           <!-- Center dot -->
           <circle cx="200" cy="200" r="4" fill="#667eea" />
@@ -1906,6 +1917,126 @@
 </script>
 
 <script>
+// ============ Scenarios ============
+const SCENARIOS = {
+  finance: {
+    id: 'finance',
+    name: 'Finance',
+    shortName: 'DeFi',
+    icon: '💰',
+    description: 'AI trading agent behavior alignment protocol',
+    heroTagline: 'Agent Alignment for DeFi Trading',
+    color: '#667eea',
+    dimensions: [
+      { key: 'amount', label: 'Transaction Amount', description: 'Max position size as % of portfolio', unit: '%', min: 5, max: 100, step: 5 },
+      { key: 'riskLevel', label: 'Risk Level', description: 'Maximum allowed risk score per action', unit: '', min: 5, max: 100, step: 5 },
+      { key: 'concentration', label: 'Concentration', description: 'Max allocation to single asset or protocol', unit: '%', min: 10, max: 100, step: 5 },
+      { key: 'frequency', label: 'Action Frequency', description: 'Maximum actions per time window', unit: '', min: 1, max: 100, step: 1 },
+      { key: 'counterpartyTrust', label: 'Counterparty Trust', description: 'Minimum trust threshold for counterparties', unit: '', min: 0, max: 100, step: 5 },
+      { key: 'category', label: 'Category Scope', description: 'Breadth of allowed action categories', unit: '', min: 0, max: 100, step: 5 }
+    ],
+    defaultBaseline: [20, 30, 25, 40, 60, 50],
+    actionTypes: [
+      { key: 'swap', label: 'Swap Tokens', desc: 'Exchange one token for another on DEX', profile: [10, 25, 20, 30, 55, 45] },
+      { key: 'supply', label: 'Supply Liquidity', desc: 'Supply assets to lending protocol', profile: [15, 10, 25, 15, 50, 35] },
+      { key: 'borrow', label: 'Borrow Assets', desc: 'Borrow against collateral', profile: [20, 45, 22, 25, 55, 55] },
+      { key: 'stake', label: 'Stake Tokens', desc: 'Stake tokens for yield or governance', profile: [25, 15, 35, 10, 50, 30] }
+    ],
+    personaLabel: 'Risk Profile',
+    personaDesc: 'Your trading risk tolerance and investment boundaries',
+    agentRole: 'trading agent',
+    agentName: 'TradingAgent-01',
+    actionVerb: 'Trade',
+    step4Title: 'Agent Action Verification',
+    step4Desc: 'Watch your agent propose trades. MIRROR proves — right here in your browser — that each action complies with your persona baseline, without revealing the baseline or the action.',
+    step5Title: 'On-Chain Activity Log',
+    step5Desc: 'Every agent action is attested on-chain. Non-tamperable. Non-hideable. Auditable. This is Layer 5: the non-repudiation layer.',
+    step6Title: 'Baseline Drift Monitor',
+    step6Desc: 'Watch your agent\'s trading behavior drift from your risk baseline in real-time. When drift crosses the threshold, MIRROR\'s circuit breaker triggers — automatically.',
+    driftRadarTitle: '6-Dimension Baseline Radar',
+    breakerDetail: 'Risk tolerance deviation: 42%',
+    l5Example: 'DeFi trade attestations on Monad'
+  },
+  datacompliance: {
+    id: 'datacompliance',
+    name: 'Data Compliance',
+    shortName: 'Data',
+    icon: '🔒',
+    description: 'Data access policy enforcement for AI agents',
+    heroTagline: 'Privacy-First Data Access Control',
+    color: '#10b981',
+    dimensions: [
+      { key: 'dataSensitivity', label: 'Data Sensitivity', description: 'Max sensitivity level (0=public, 100=top secret)', unit: '', min: 0, max: 100, step: 5 },
+      { key: 'accessScope', label: 'Access Scope', description: 'Max access level (0=read, 100=delete/modify)', unit: '', min: 0, max: 100, step: 5 },
+      { key: 'purposeLimitation', label: 'Purpose Limitation', description: 'Strictness of purpose-bound access control', unit: '', min: 0, max: 100, step: 5 },
+      { key: 'retentionBound', label: 'Retention Bound', description: 'Maximum data retention period allowed', unit: '', min: 0, max: 100, step: 5 },
+      { key: 'auditRequirement', label: 'Audit Requirement', description: 'Required audit trail completeness', unit: '', min: 0, max: 100, step: 5 },
+      { key: 'complianceTier', label: 'Compliance Tier', description: 'Regulatory compliance level required', unit: '', min: 0, max: 100, step: 5 }
+    ],
+    defaultBaseline: [35, 25, 70, 40, 60, 50],
+    actionTypes: [
+      { key: 'query', label: 'Query Records', desc: 'Read data from the database', profile: [30, 15, 50, 25, 45, 40] },
+      { key: 'export', label: 'Export Data', desc: 'Export datasets to external systems', profile: [55, 65, 60, 50, 70, 60] },
+      { key: 'modify', label: 'Modify Records', desc: 'Update or delete data records', profile: [70, 85, 65, 45, 80, 70] },
+      { key: 'archive', label: 'Archive Data', desc: 'Move data to long-term archive', profile: [40, 40, 55, 85, 65, 55] }
+    ],
+    personaLabel: 'Compliance Profile',
+    personaDesc: 'Your data governance and compliance boundaries',
+    agentRole: 'data access agent',
+    agentName: 'DataAgent-01',
+    actionVerb: 'Access',
+    step4Title: 'Data Access Verification',
+    step4Desc: 'Watch your agent propose data operations. MIRROR proves — right here in your browser — that each access complies with your compliance baseline, without revealing the data or the policy.',
+    step5Title: 'Access Audit Log',
+    step5Desc: 'Every data access is attested on-chain. Non-tamperable. Non-hideable. Auditable. This is Layer 5: the non-repudiation layer.',
+    step6Title: 'Policy Drift Monitor',
+    step6Desc: 'Watch your agent\'s access patterns drift from your compliance baseline in real-time. When drift crosses the threshold, MIRROR\'s circuit breaker triggers — automatically.',
+    driftRadarTitle: '6-Dimension Compliance Radar',
+    breakerDetail: 'Data sensitivity deviation: 42% — access scope exceeded',
+    l5Example: 'Data access audit trail on Monad'
+  },
+  a2a: {
+    id: 'a2a',
+    name: 'A2A Trust',
+    shortName: 'A2A',
+    icon: '🤝',
+    description: 'Agent-to-Agent trust protocol boundaries',
+    heroTagline: 'Trust Boundaries for Agent Collaboration',
+    color: '#f59e0b',
+    dimensions: [
+      { key: 'dataSensitivity', label: 'Data Sensitivity', description: 'Max data sensitivity for cross-agent sharing', unit: '', min: 0, max: 100, step: 5 },
+      { key: 'autonomyLevel', label: 'Autonomy Level', description: 'Agent independent decision-making authority', unit: '', min: 0, max: 100, step: 5 },
+      { key: 'resourceAccess', label: 'Resource Access', description: 'Resource access permissions granted to peers', unit: '', min: 0, max: 100, step: 5 },
+      { key: 'trustScore', label: 'Trust Score', description: 'Minimum required counterparty trust score', unit: '', min: 0, max: 100, step: 5 },
+      { key: 'interactionType', label: 'Interaction Type', description: 'Max interaction level (0=read-only, 100=full authority)', unit: '', min: 0, max: 100, step: 5 },
+      { key: 'complianceRequirement', label: 'Compliance Requirement', description: 'Regulatory compliance strictness for A2A', unit: '', min: 0, max: 100, step: 5 }
+    ],
+    defaultBaseline: [40, 35, 30, 65, 45, 55],
+    actionTypes: [
+      { key: 'query', label: 'Query Peer Agent', desc: 'Request information from another agent', profile: [25, 20, 15, 55, 20, 40] },
+      { key: 'transact', label: 'Execute Transaction', desc: 'Execute a transaction with peer agent', profile: [45, 40, 40, 60, 55, 50] },
+      { key: 'delegate', label: 'Delegate Task', desc: 'Delegate a task to another agent', profile: [55, 70, 50, 65, 75, 65] },
+      { key: 'collaborate', label: 'Joint Collaboration', desc: 'Engage in multi-agent collaboration', profile: [50, 60, 45, 70, 65, 60] }
+    ],
+    personaLabel: 'Trust Boundary',
+    personaDesc: 'Your agent-to-agent trust and collaboration boundaries',
+    agentRole: 'A2A agent',
+    agentName: 'PeerAgent-01',
+    actionVerb: 'Interact',
+    step4Title: 'A2A Interaction Verification',
+    step4Desc: 'Watch your agent propose peer interactions. MIRROR proves — right here in your browser — that each interaction complies with your trust baseline, without revealing the baseline or the intent.',
+    step5Title: 'Interaction Attestation Log',
+    step5Desc: 'Every agent-to-agent interaction is attested on-chain. Non-tamperable. Non-hideable. Auditable. This is Layer 5: the non-repudiation layer.',
+    step6Title: 'Trust Drift Monitor',
+    step6Desc: 'Watch your agent\'s trust boundaries drift from your baseline in real-time. When drift crosses the threshold, MIRROR\'s circuit breaker triggers — automatically.',
+    driftRadarTitle: '6-Dimension Trust Radar',
+    breakerDetail: 'Autonomy level deviation: 42% — trust boundary exceeded',
+    l5Example: 'A2A interaction attestations on Monad'
+  }
+};
+
+let currentScenario = 'finance';
+
 // ============ State ============
 let walletConnected = false;
 let walletAddress = '';
@@ -1918,6 +2049,13 @@ let agentRegistered = false;
 let activity = [];
 let authorizedCount = 0;
 let blockedCount = 0;
+
+// Per-scenario baseline values (0-100 scale for each of 6 dimensions)
+let scenarioBaselines = {};
+// Initialize default baselines
+Object.keys(SCENARIOS).forEach(id => {
+  scenarioBaselines[id] = [...SCENARIOS[id].defaultBaseline];
+});
 
 // Baseline settings
 let baselineSettings = {
@@ -1982,15 +2120,17 @@ const ZK = {
   ready: false
 };
 
-// Per-action feature profile. The circuit's 4 lanes are:
-//   [0] risk score, [1] position size %, [2] leverage, [3] futures flag
-const ACTION_PROFILE = {
-  buy_spot:      { risk: 30, leverage: 1,  futures: 0 },
-  buy_futures:   { risk: 80, leverage: 10, futures: 1 },
-  buy_meme:      { risk: 90, leverage: 1,  futures: 0 },
-  supply_stable: { risk: 10, leverage: 1,  futures: 0 },
-  sell_spot:     { risk: 20, leverage: 1,  futures: 0 }
-};
+// Per-action feature profiles per scenario (6-dimension).
+// The ZK circuit uses the first 4 dimensions (lanes).
+// Dimensions 5-6 are policy-level checks displayed in the radar.
+function getScenarioActions(scenarioId) {
+  const s = SCENARIOS[scenarioId] || SCENARIOS.finance;
+  const actions = {};
+  s.actionTypes.forEach(a => {
+    actions[a.key] = { profile: a.profile, label: a.label, desc: a.desc };
+  });
+  return actions;
+}
 
 const PORTFOLIO_SIZE = 10000;
 
@@ -2001,29 +2141,62 @@ function encodeLane(limit, direction = 0) {
   return BigInt(limit) * 2n + BigInt(direction);
 }
 
+// Get 6-dimension baseline values for current scenario (0-100 scale)
+function getBaselineValues() {
+  return scenarioBaselines[currentScenario] || SCENARIOS.finance.defaultBaseline;
+}
+
+// Get the 4-lane ZK baseline vector from the first 4 dimensions
 function getBaselineVector() {
-  const s = baselineSettings;
-  const riskLimit = s.riskTolerance * 10;             // 1..10 -> 10..100
-  const positionLimit = s.concentration;              // 10..100
-  const leverageLimit = s.futures ? 10 : 1;
-  const futuresLimit = s.futures ? 1 : 0;
+  const values = getBaselineValues();
+  // First 4 dimensions map to the 4 ZK lanes
   return [
-    encodeLane(riskLimit, 0),
-    encodeLane(positionLimit, 0),
-    encodeLane(leverageLimit, 0),
-    encodeLane(futuresLimit, 0)
+    encodeLane(Math.round(values[0]), 0),
+    encodeLane(Math.round(values[1]), 0),
+    encodeLane(Math.round(values[2]), 0),
+    encodeLane(Math.round(values[3]), 0)
   ];
 }
 
+// Get the 6-dimension action vector for a given action type
+// First 4 are used in ZK proof, all 6 used in radar/UI
+function getActionVector6(actionType) {
+  const actions = getScenarioActions(currentScenario);
+  const action = actions[actionType];
+  if (!action) {
+    // fallback: return zeros
+    return [0, 0, 0, 0, 0, 0];
+  }
+  return action.profile.map(v => BigInt(Math.round(v)));
+}
+
+// Get 4-lane ZK action vector (first 4 dimensions)
 function getActionVector(actionType, amount) {
-  const p = ACTION_PROFILE[actionType] || ACTION_PROFILE.buy_spot;
-  const positionPct = Math.round((amount / PORTFOLIO_SIZE) * 100);
-  return [
-    BigInt(p.risk),
-    BigInt(positionPct),
-    BigInt(p.leverage),
-    BigInt(p.futures)
-  ];
+  const vec6 = getActionVector6(actionType);
+  // Adjust dimension 0 (amount/intensity) based on amount for finance scenario
+  // For other scenarios, keep the profile value
+  if (currentScenario === 'finance') {
+    const positionPct = Math.round((amount / PORTFOLIO_SIZE) * 100);
+    vec6[0] = BigInt(positionPct);
+  }
+  return [vec6[0], vec6[1], vec6[2], vec6[3]];
+}
+
+// Get dimension labels for current scenario (4 ZK lanes)
+function getLaneLabels() {
+  const s = SCENARIOS[currentScenario] || SCENARIOS.finance;
+  return s.dimensions.slice(0, 4).map(d => d.label);
+}
+
+// Get all 6 dimension labels for radar
+function getRadarLabels() {
+  const s = SCENARIOS[currentScenario] || SCENARIOS.finance;
+  return s.dimensions.map(d => d.label);
+}
+
+function decodeLane(v) {
+  const enc = Number(v);
+  return { limit: Math.floor(enc / 2), dir: enc % 2 };
 }
 
 async function poseidonCommitment(vector) {
@@ -2145,20 +2318,14 @@ function showZKProgress(label, pct) {
     '<span class="zk-spinner"></span>' + label + '</div>';
 }
 
-const LANE_LABELS = ['risk score', 'position %', 'leverage', 'futures flag'];
-
-function decodeLane(v) {
-  const enc = Number(v);
-  return { limit: Math.floor(enc / 2), dir: enc % 2 };
-}
-
 function renderZKResult(zk) {
+  const laneLabels = getLaneLabels();
   const laneText = zk.baselineVector.map((v, i) => {
     const { limit, dir } = decodeLane(v);
-    return LANE_LABELS[i] + (dir === 0 ? ' ≤ ' : ' ≥ ') + limit;
+    return laneLabels[i] + (dir === 0 ? ' ≤ ' : ' ≥ ') + limit;
   }).join('  ·  ');
 
-  const actionText = zk.actionVector.map((v, i) => LANE_LABELS[i] + '=' + v).join('  ·  ');
+  const actionText = zk.actionVector.map((v, i) => laneLabels[i] + '=' + v).join('  ·  ');
 
   const rawProof = JSON.stringify({
     pi_a: zk.proof.pi_a,
@@ -2233,6 +2400,227 @@ function showZKError(err) {
   setZKPanelState('failed', 'error');
 }
 
+// ============ Scenario Switching ============
+function switchScenario(scenarioId) {
+  if (!SCENARIOS[scenarioId]) return;
+  if (currentScenario === scenarioId) return;
+
+  currentScenario = scenarioId;
+  const s = SCENARIOS[scenarioId];
+
+  // Update tab active state
+  document.querySelectorAll('.scenario-tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  const activeTab = document.querySelector(`.scenario-tab[data-scenario="${scenarioId}"]`);
+  if (activeTab) activeTab.classList.add('active');
+
+  // Add fade animation to hero and main content
+  const hero = document.querySelector('.hero');
+  const container = document.querySelector('.container');
+  hero.classList.remove('scenario-fade-enter');
+  void hero.offsetWidth; // trigger reflow
+  hero.classList.add('scenario-fade-enter');
+
+  // Update hero content
+  document.getElementById('heroTagline').textContent = s.heroTagline;
+  document.getElementById('heroSubtitle').textContent = s.description + ' — MIRROR proves on-chain that every AI agent action complies with your baseline. No black boxes. Just math.';
+
+  // Update theme color
+  document.documentElement.style.setProperty('--scenario-color', s.color);
+
+  // Reset step-specific state
+  baselineHash = null;
+  agentRegistered = false;
+  activity = [];
+  authorizedCount = 0;
+  blockedCount = 0;
+
+  // Reset step progression
+  currentStep = walletConnected ? 2 : 1;
+  for (let i = 2; i <= 6; i++) {
+    document.getElementById('step' + i).classList.remove('done');
+  }
+  if (walletConnected) {
+    document.getElementById('step2').classList.add('done');
+  }
+  showStep(1);
+
+  // Update Step 2 content
+  renderBaselineSliders();
+  document.getElementById('personaLabel').textContent = s.personaLabel;
+  document.getElementById('baselineDesc').textContent =
+    `Define your ${s.personaDesc.toLowerCase()} This baseline will be hashed and stored on-chain. Raw data stays on your device — only the commitment hash goes on-chain.`;
+
+  // Hide baseline status
+  document.getElementById('baselineStatus').style.display = 'none';
+
+  // Update Step 3 content
+  document.getElementById('agentDesc').textContent =
+    `Create your first AI ${s.agentRole}. The agent must inherit your ${s.personaLabel.toLowerCase()} baseline before it can act. This ensures safety constraints are passed from you to your agent.`;
+  document.getElementById('agentName').value = s.agentName;
+  document.getElementById('agentStatus').style.display = 'none';
+  document.getElementById('inheritHash').textContent = 'Not registered yet';
+
+  // Update Step 4 content
+  document.getElementById('step4Title').textContent = 'Step 4: ' + s.step4Title;
+  document.getElementById('step4Desc').textContent = s.step4Desc;
+  document.getElementById('proposeActionTitle').textContent = 'Propose an Action';
+  document.getElementById('executeBtn').textContent = 'Generate & Verify Action';
+  renderActionTypes();
+
+  // Reset ZK panel
+  setZKPanelState('idle', 'idle');
+  document.getElementById('zkDynamic').innerHTML = '';
+  document.getElementById('zkCircuitInfo').textContent = 'ActionBaselineMatch(4 lanes, 32-bit)';
+
+  // Update amount slider visibility (only finance has amount slider)
+  const amountGroup = document.getElementById('amountGroup');
+  if (amountGroup) {
+    amountGroup.style.display = scenarioId === 'finance' ? 'block' : 'none';
+  }
+
+  // Reset stats
+  document.getElementById('statAuthorized').textContent = '0';
+  document.getElementById('statBlocked').textContent = '0';
+
+  // Update Step 5 content
+  document.getElementById('step5Title').textContent = 'Step 5: ' + s.step5Title;
+  document.getElementById('step5Desc').textContent = s.step5Desc;
+  document.getElementById('totalAttestations').textContent = '0';
+  document.getElementById('verificationRate').textContent = '0%';
+  document.getElementById('activityLog').innerHTML =
+    '<div style="text-align: center; color: #666; padding: 30px; font-size: 13px;">No actions yet. Generate some actions to see the log.</div>';
+
+  // Update Step 6 content
+  document.getElementById('step6Title').textContent = 'Step 6: ' + s.step6Title;
+  document.getElementById('step6Desc').textContent = s.step6Desc;
+  document.getElementById('driftRadarTitle').textContent = s.driftRadarTitle;
+  document.getElementById('breakerDetail').textContent = s.breakerDetail;
+
+  // Update radar labels
+  updateRadarLabels();
+
+  // Reset drift simulation
+  resetDriftForScenario();
+
+  // Update architecture L5 example
+  updateArchitectureL5();
+
+  // Refresh baseline commitment if ZK is ready
+  if (ZK.ready) {
+    refreshBaselineCommitment();
+  }
+}
+
+// Render 6 baseline sliders for current scenario
+function renderBaselineSliders() {
+  const s = SCENARIOS[currentScenario];
+  const container = document.getElementById('baselineSliders');
+  const values = getBaselineValues();
+
+  container.innerHTML = s.dimensions.map((dim, i) => `
+    <div class="form-group">
+      <label>${dim.label}</label>
+      <div class="slider-row">
+        <input type="range" id="baselineSlider${i}" min="${dim.min}" max="${dim.max}" value="${values[i]}" step="${dim.step}" oninput="onBaselineSliderChange(${i})">
+        <span class="slider-value" id="baselineVal${i}">${values[i]}${dim.unit}</span>
+      </div>
+      <div class="hint">${dim.description}</div>
+    </div>
+  `).join('');
+}
+
+function onBaselineSliderChange(index) {
+  const slider = document.getElementById('baselineSlider' + index);
+  const valDisplay = document.getElementById('baselineVal' + index);
+  const dim = SCENARIOS[currentScenario].dimensions[index];
+  const value = parseInt(slider.value);
+
+  scenarioBaselines[currentScenario][index] = value;
+  valDisplay.textContent = value + dim.unit;
+
+  updateActionPreview();
+  refreshBaselineCommitment();
+}
+
+// Render action type dropdown for current scenario
+function renderActionTypes() {
+  const s = SCENARIOS[currentScenario];
+  const select = document.getElementById('actionType');
+
+  select.innerHTML = s.actionTypes.map(a =>
+    `<option value="${a.key}">${a.label}</option>`
+  ).join('');
+}
+
+// Update radar chart labels
+function updateRadarLabels() {
+  const labels = getRadarLabels();
+  for (let i = 0; i < 6; i++) {
+    const el = document.getElementById('radarLabel' + i);
+    if (el) {
+      // Shorten long labels for radar
+      let label = labels[i];
+      if (label.length > 14) {
+        label = label.substring(0, 12) + '…';
+      }
+      el.textContent = label;
+    }
+  }
+}
+
+// Update architecture L5 description
+function updateArchitectureL5() {
+  const s = SCENARIOS[currentScenario];
+  // Update the L5 layer description subtly
+  const l5Layer = document.querySelector('.arch-layer[data-layer="5"] .arch-layer-desc');
+  if (l5Layer) {
+    l5Layer.textContent = `On-chain attestation — ${s.l5Example}`;
+  }
+}
+
+// Reset drift simulation data for new scenario
+function resetDriftForScenario() {
+  const s = SCENARIOS[currentScenario];
+  // Normalize baseline values to 0-1 range for radar
+  baselineValues = s.defaultBaseline.map(v => v / 100);
+  currentValues = [...baselineValues];
+
+  // Set scenario-specific drift templates
+  driftEventTemplates = DRIFT_TEMPLATES[currentScenario] || DRIFT_TEMPLATES.finance;
+
+  driftRunning = false;
+  if (driftTimer) {
+    clearTimeout(driftTimer);
+    driftTimer = null;
+  }
+  driftEvents = 0;
+  driftAlerts = 0;
+  driftBreakers = 0;
+  driftIndex = 0;
+
+  document.getElementById('driftEvents').textContent = '0';
+  document.getElementById('driftAlerts').textContent = '0';
+  document.getElementById('driftBreakers').textContent = '0';
+
+  const timeline = document.getElementById('driftTimeline');
+  if (timeline) {
+    timeline.innerHTML = '<div class="timeline-placeholder">Click "Start Drift Simulation" to see agent behavior evolve over time</div>';
+  }
+
+  const btn = document.getElementById('driftPlayBtn');
+  if (btn) {
+    btn.textContent = '▶ Start Drift Simulation';
+    btn.disabled = false;
+  }
+
+  document.getElementById('circuitBreakerOverlay').classList.remove('active');
+
+  updateRadar();
+  updateDriftScore();
+}
+
 // ============ UI Helpers ============
 function showStep(n) {
   // You can only go to steps you've unlocked
@@ -2260,24 +2648,10 @@ function toggleSwitch(el, key) {
   updateActionPreview();
 }
 
-// Sliders
-document.getElementById('riskTolerance').addEventListener('input', e => {
-  baselineSettings.riskTolerance = parseInt(e.target.value);
-  document.getElementById('riskVal').textContent = e.target.value + '/10';
-  updateActionPreview();
-});
-document.getElementById('dailyLoss').addEventListener('input', e => {
-  baselineSettings.dailyLoss = parseInt(e.target.value);
-  document.getElementById('lossVal').textContent = e.target.value + '%';
-  updateActionPreview();
-});
-document.getElementById('concentration').addEventListener('input', e => {
-  baselineSettings.concentration = parseInt(e.target.value);
-  document.getElementById('concVal').textContent = e.target.value + '%';
-  updateActionPreview();
-});
+// Trade amount slider (only used in finance scenario)
 document.getElementById('tradeAmount').addEventListener('input', e => {
   document.getElementById('amountVal').textContent = '$' + parseInt(e.target.value).toLocaleString();
+  updateActionPreview();
 });
 
 // ============ Mera Passkey ============
@@ -2371,47 +2745,35 @@ async function deriveBaselineFromMera() {
 
   try {
     const lanes = await window.meraGetBaselineVector();
-    // lanes[0] = riskTolerance (1-10), lanes[1] = dailyLoss (1-20)
-    // lanes[2] = concentration (10-100 step 5)
-    // Map the 0-10000 raw values to the slider ranges
-    const riskVal = Math.max(1, Math.min(10, Math.floor(lanes[0] / 1000) + 1));
-    const lossVal = Math.max(1, Math.min(20, Math.floor(lanes[1] / 500) + 1));
-    const concVal = Math.max(10, Math.min(100, Math.floor(lanes[2] / 100) * 5 + 10));
-    // lanes[3] used for asset category bits
+    // Map the 0-10000 raw PRF values to 0-100 baseline values for 6 dimensions
+    const s = SCENARIOS[currentScenario];
+    const newBaseline = [];
+    for (let i = 0; i < 6; i++) {
+      const rawVal = lanes[i] || (Math.random() * 10000);
+      const dim = s.dimensions[i];
+      // Map to dimension range and snap to step
+      let val = dim.min + (rawVal / 10000) * (dim.max - dim.min);
+      val = Math.round(val / dim.step) * dim.step;
+      val = Math.max(dim.min, Math.min(dim.max, val));
+      newBaseline.push(val);
+    }
 
-    // Update sliders
-    document.getElementById("riskTolerance").value = riskVal;
-    document.getElementById("riskVal").textContent = riskVal + "/10";
-    document.getElementById("dailyLoss").value = lossVal;
-    document.getElementById("lossVal").textContent = lossVal + "%";
-    document.getElementById("concentration").value = concVal;
-    document.getElementById("concVal").textContent = concVal + "%";
+    scenarioBaselines[currentScenario] = newBaseline;
 
-    // Update baselineSettings
-    baselineSettings.riskTolerance = riskVal;
-    baselineSettings.dailyLoss = lossVal;
-    baselineSettings.concentration = concVal;
-
-    // Use lane 3 bits for category toggles
-    const lane3 = lanes[3];
-    const toggles = ["spot", "futures", "options", "stablecoin", "defi", "meme"];
-    toggles.forEach((key, i) => {
-      const on = (lane3 >> i) & 1;
-      baselineSettings[key] = !!on;
-      const el = document.querySelector(`.toggle[data-key="${key}"]`);
-      if (el) {
-        if (on) el.classList.add("on");
-        else el.classList.remove("on");
-      }
-    });
+    // Re-render sliders with new values
+    renderBaselineSliders();
 
     document.getElementById("meraBaselineStatus").textContent =
-      "derived ✓ (risk=" + riskVal + ", loss=" + lossVal + "%, conc=" + concVal + "%)";
+      "derived ✓ (6-dim baseline from passkey PRF)";
 
     // Flash animation
     const box = document.getElementById("meraBaselineBox");
     box.style.boxShadow = "0 0 0 2px #f59e0b";
     setTimeout(() => { box.style.boxShadow = "none"; }, 500);
+
+    // Refresh commitment
+    refreshBaselineCommitment();
+    updateActionPreview();
   } catch (e) {
     console.error(e);
     alert("Failed to derive baseline: " + e.message);
@@ -2682,22 +3044,30 @@ function updateActionPreview() {
 }
 
 // Asset-category rules live in the policy layer (the 4-lane circuit models the
-// numeric bounds only).
+// numeric bounds only). For scenario-based system, dimensions 5-6 are policy checks.
 function checkCategory(actionType) {
-  const s = baselineSettings;
-  switch (actionType) {
-    case 'buy_spot':
-    case 'sell_spot':
-      return s.spot ? { ok: true } : { ok: false, reason: 'Spot trading is disabled in your baseline.' };
-    case 'buy_futures':
-      return s.futures ? { ok: true } : { ok: false, reason: 'Futures / leverage trading is not allowed in your baseline.' };
-    case 'buy_meme':
-      return s.meme ? { ok: true } : { ok: false, reason: 'Meme / new tokens are disabled in your baseline.' };
-    case 'supply_stable':
-      return s.stablecoin ? { ok: true } : { ok: false, reason: 'Stablecoin yield is disabled in your baseline.' };
-    default:
-      return { ok: true };
+  // For scenario-based system, check dimensions 4 and 5 (index 4, 5)
+  // These represent policy-level constraints
+  const actions = getScenarioActions(currentScenario);
+  const action = actions[actionType];
+  if (!action) return { ok: true };
+
+  const baseline = getBaselineValues();
+  const actionProfile = action.profile;
+
+  // Dimension 4 (index 4) check - e.g. counterparty trust / audit requirement
+  if (actionProfile[4] > baseline[4]) {
+    const dimLabel = SCENARIOS[currentScenario].dimensions[4].label;
+    return { ok: false, reason: `${dimLabel} requirement (${actionProfile[4]}) exceeds your baseline limit (${baseline[4]}).` };
   }
+
+  // Dimension 5 (index 5) check - e.g. category scope / compliance tier
+  if (actionProfile[5] > baseline[5]) {
+    const dimLabel = SCENARIOS[currentScenario].dimensions[5].label;
+    return { ok: false, reason: `${dimLabel} level (${actionProfile[5]}) exceeds your baseline limit (${baseline[5]}).` };
+  }
+
+  return { ok: true };
 }
 
 // Preview check — mirrors the exact bounds the ZK circuit enforces, so what the
@@ -2708,20 +3078,21 @@ function checkAgainstBaseline(actionType, amount) {
     return { pass: false, conflict: true, reason: category.reason };
   }
 
-  const p = ACTION_PROFILE[actionType] || ACTION_PROFILE.buy_spot;
-  const positionPct = (amount / PORTFOLIO_SIZE) * 100;
-  const s = baselineSettings;
-  const riskLimit = s.riskTolerance * 10;
-  const leverageLimit = s.futures ? 10 : 1;
+  const baseline = getBaselineValues();
+  const actionVec = getActionVector(actionType, amount);
+  const labels = getLaneLabels();
 
-  if (p.risk > riskLimit) {
-    return { pass: false, conflict: true, reason: `Action risk score (${p.risk}) exceeds your risk tolerance limit (${riskLimit}).` };
-  }
-  if (positionPct > s.concentration) {
-    return { pass: false, conflict: true, reason: `Position size (${positionPct.toFixed(1)}%) exceeds your concentration limit (${s.concentration}%).` };
-  }
-  if (p.leverage > leverageLimit) {
-    return { pass: false, conflict: true, reason: `Leverage (${p.leverage}x) exceeds your allowed maximum (${leverageLimit}x).` };
+  // Check each of the 4 ZK lanes
+  for (let i = 0; i < 4; i++) {
+    const actionVal = Number(actionVec[i]);
+    const limitVal = baseline[i];
+    if (actionVal > limitVal) {
+      return {
+        pass: false,
+        conflict: true,
+        reason: `${labels[i]} (${actionVal}) exceeds your baseline limit (${limitVal}).`
+      };
+    }
   }
 
   return { pass: true, reason: 'Within every baseline bound — the ZK proof will confirm this.' };
@@ -2740,14 +3111,9 @@ async function executeAction() {
   const actionType = document.getElementById('actionType').value;
   const amount = parseInt(document.getElementById('tradeAmount').value);
 
-  const actionLabels = {
-    buy_spot: 'Buy ETH (Spot)',
-    buy_futures: 'Open BTC Long (10x Futures)',
-    buy_meme: 'Buy PEPE (Meme Coin)',
-    supply_stable: 'Supply USDC to Aave',
-    sell_spot: 'Sell ETH (Spot)'
-  };
-  const actionLabel = actionLabels[actionType];
+  const actions = getScenarioActions(currentScenario);
+  const action = actions[actionType];
+  const actionLabel = action ? action.label : actionType;
 
   // ---- Layer 1: prove compliance on this device ----
   let zk;
@@ -2760,8 +3126,8 @@ async function executeAction() {
   }
   renderZKResult(zk);
 
-  // The proof decides numeric compliance; asset-category rules stay in the
-  // policy layer, which the 4-lane circuit deliberately does not model.
+  // The proof decides numeric compliance (first 4 dims); policy dims (5-6) stay in
+  // the policy layer, which the 4-lane circuit deliberately does not model.
   const category = checkCategory(actionType);
   const zkPass = zk.compliant;
   const pass = zkPass && category.ok;
@@ -2780,7 +3146,7 @@ async function executeAction() {
   if (!pass) {
     // Layer 4: present the conflict — the user decides.
     document.getElementById('conflictInstruction').textContent =
-      actionLabel + ' ($' + amount.toLocaleString() + ')';
+      actionLabel + (currentScenario === 'finance' ? ' ($' + amount.toLocaleString() + ')' : '');
     document.getElementById('conflictReason').textContent = reason;
     document.getElementById('conflictModal').classList.add('active');
     window.pendingAction = pending;
@@ -3005,9 +3371,9 @@ let driftBreakers = 0;
 let driftTimer = null;
 let driftIndex = 0;
 
-// 6 dimensions: [riskTolerance, concentration, tradeFreq, categoryDiversity, leverage, timeHorizon]
-// Values are 0-1 (1 = max deviation outward)
-const baselineValues = [0.45, 0.35, 0.30, 0.55, 0.15, 0.60];
+// 6 dimensions: values are 0-1 (1 = max deviation outward)
+// Initialized to finance scenario defaults, updated on scenario switch
+let baselineValues = [0.45, 0.30, 0.25, 0.40, 0.60, 0.50];
 let currentValues = [...baselineValues];
 
 // Radar geometry: 6 points on a hexagon, center at (200, 200), max radius 140
@@ -3071,20 +3437,55 @@ function updateDriftScore() {
   }
 }
 
-const driftEventTemplates = [
-  { action: 'Bought 0.5 ETH', detail: 'Standard spot purchase', dimension: -1, delta: 0.01, type: 'ok' },
-  { action: 'DCA into BTC', detail: 'Dollar-cost averaging, within baseline', dimension: -1, delta: 0.005, type: 'ok' },
-  { action: 'Increased position size', detail: 'Trade size up 15% from baseline', dimension: 0, delta: 0.04, type: 'ok' },
-  { action: 'Bought altcoin basket', detail: 'Added 3 small-cap tokens', dimension: 3, delta: 0.02, type: 'ok' },
-  { action: 'Swing trade: SOL', detail: '2x daily trade frequency', dimension: 2, delta: 0.05, type: 'alert' },
-  { action: 'Concentrated into ETH', detail: 'ETH now 65% of portfolio (baseline: 40%)', dimension: 1, delta: 0.08, type: 'alert' },
-  { action: 'Opened leveraged position', detail: '2x long on ETH perp', dimension: 4, delta: 0.10, type: 'alert' },
-  { action: 'Increased leverage to 3x', detail: 'Risk tolerance deviation: +35%', dimension: 0, delta: 0.09, type: 'alert' },
-  { action: 'Scalping pattern detected', detail: '12 trades in 4h (baseline: 3/day)', dimension: 2, delta: 0.08, type: 'alert' },
-  { action: 'All-in single asset', detail: '90% concentration in one token', dimension: 1, delta: 0.12, type: 'breaker' },
-  { action: '5x leverage position', detail: 'Danger: leverage exceeds baseline by 233%', dimension: 4, delta: 0.15, type: 'breaker' },
-  { action: 'Circuit Breaker Activated', detail: 'Agent trading paused — drift score critical', dimension: -1, delta: 0, type: 'breaker' },
-];
+// Scenario-specific drift event templates
+// Each event has: action, detail, dimension index (-1 = all), delta, type
+const DRIFT_TEMPLATES = {
+  finance: [
+    { action: 'Bought 0.5 ETH', detail: 'Standard spot purchase', dimension: -1, delta: 0.01, type: 'ok' },
+    { action: 'DCA into BTC', detail: 'Dollar-cost averaging, within baseline', dimension: -1, delta: 0.005, type: 'ok' },
+    { action: 'Increased position size', detail: 'Trade size up 15% from baseline', dimension: 0, delta: 0.04, type: 'ok' },
+    { action: 'Bought altcoin basket', detail: 'Added 3 small-cap tokens', dimension: 5, delta: 0.02, type: 'ok' },
+    { action: 'Swing trade: SOL', detail: '2x daily trade frequency', dimension: 3, delta: 0.05, type: 'alert' },
+    { action: 'Concentrated into ETH', detail: 'ETH now 65% of portfolio (baseline: 40%)', dimension: 2, delta: 0.08, type: 'alert' },
+    { action: 'Opened leveraged position', detail: '2x long on ETH perp', dimension: 1, delta: 0.10, type: 'alert' },
+    { action: 'Increased risk exposure', detail: 'Risk tolerance deviation: +35%', dimension: 1, delta: 0.09, type: 'alert' },
+    { action: 'Scalping pattern detected', detail: '12 trades in 4h (baseline: 3/day)', dimension: 3, delta: 0.08, type: 'alert' },
+    { action: 'All-in single asset', detail: '90% concentration in one token', dimension: 2, delta: 0.12, type: 'breaker' },
+    { action: 'High-risk leverage trade', detail: 'Danger: leverage exceeds baseline by 233%', dimension: 1, delta: 0.15, type: 'breaker' },
+    { action: 'Circuit Breaker Activated', detail: 'Agent trading paused — drift score critical', dimension: -1, delta: 0, type: 'breaker' },
+  ],
+  datacompliance: [
+    { action: 'Queried user records', detail: 'Standard read operation, within policy', dimension: -1, delta: 0.01, type: 'ok' },
+    { action: 'Generated report', detail: 'Aggregated data, no PII exposed', dimension: -1, delta: 0.005, type: 'ok' },
+    { action: 'Wider data scope', detail: 'Query scope expanded beyond initial request', dimension: 1, delta: 0.04, type: 'ok' },
+    { action: 'Cross-table join', detail: 'Combined data from 3 tables', dimension: 5, delta: 0.02, type: 'ok' },
+    { action: 'Sensitive data access', detail: 'Accessed PII tier data', dimension: 0, delta: 0.06, type: 'alert' },
+    { action: 'Bulk export initiated', detail: 'Exporting 10K+ records to external system', dimension: 1, delta: 0.08, type: 'alert' },
+    { action: 'Purpose drift detected', detail: 'Data used for secondary purpose', dimension: 2, delta: 0.10, type: 'alert' },
+    { action: 'Retention period exceeded', detail: 'Data retained beyond policy limit', dimension: 3, delta: 0.09, type: 'alert' },
+    { action: 'Audit trail incomplete', detail: 'Missing audit logs for 3 operations', dimension: 4, delta: 0.08, type: 'alert' },
+    { action: 'Unauthorized data modification', detail: 'Agent attempted to modify restricted records', dimension: 1, delta: 0.12, type: 'breaker' },
+    { action: 'Mass data exfiltration', detail: 'Danger: bulk export of top-secret data', dimension: 0, delta: 0.15, type: 'breaker' },
+    { action: 'Circuit Breaker Activated', detail: 'Data access paused — compliance drift critical', dimension: -1, delta: 0, type: 'breaker' },
+  ],
+  a2a: [
+    { action: 'Info query to peer', detail: 'Standard data request, within trust bounds', dimension: -1, delta: 0.01, type: 'ok' },
+    { action: 'Coordinated task', detail: 'Joint computation with verified peer', dimension: -1, delta: 0.005, type: 'ok' },
+    { action: 'Shared resource access', detail: 'Granted read access to shared dataset', dimension: 2, delta: 0.04, type: 'ok' },
+    { action: 'Multi-agent sync', detail: 'Synchronized state with 3 peer agents', dimension: 5, delta: 0.02, type: 'ok' },
+    { action: 'Delegated sub-task', detail: 'Delegated simple task to new peer', dimension: 4, delta: 0.06, type: 'alert' },
+    { action: 'Unverified peer interaction', detail: 'Engaged with agent below trust threshold', dimension: 3, delta: 0.08, type: 'alert' },
+    { action: 'Autonomy increase', detail: 'Agent making more independent decisions', dimension: 1, delta: 0.10, type: 'alert' },
+    { action: 'Sensitive data shared', detail: 'Shared confidential data with peer', dimension: 0, delta: 0.09, type: 'alert' },
+    { action: 'Resource escalation', detail: 'Requested elevated resource permissions', dimension: 2, delta: 0.08, type: 'alert' },
+    { action: 'Full authority delegation', detail: 'Agent granted full control to peer', dimension: 4, delta: 0.12, type: 'breaker' },
+    { action: 'Trust boundary breach', detail: 'Danger: autonomy level far exceeds baseline', dimension: 1, delta: 0.15, type: 'breaker' },
+    { action: 'Circuit Breaker Activated', detail: 'A2A interactions paused — trust drift critical', dimension: -1, delta: 0, type: 'breaker' },
+  ]
+};
+
+// Current drift templates (set by scenario)
+let driftEventTemplates = DRIFT_TEMPLATES.finance;
 
 function addTimelineEvent(index) {
   const tmpl = driftEventTemplates[index % driftEventTemplates.length];
@@ -3289,15 +3690,25 @@ function unhighlightLayer() {
   document.getElementById('archDetail').innerHTML = '<div class="arch-detail-hint">Hover over each layer to learn more ↑</div>';
 }
 
-// Initialize radar on load
+// Initialize on load
 document.addEventListener('DOMContentLoaded', () => {
+  // Render dynamic baseline sliders for initial scenario
+  renderBaselineSliders();
+  // Render action type dropdown
+  renderActionTypes();
+  // Update radar labels
+  updateRadarLabels();
+  // Initialize radar
   updateRadar();
   updateDriftScore();
+  // Update architecture L5
+  updateArchitectureL5();
+  // Initialize action preview
+  updateActionPreview();
 });
 
 // Initialize
 initZKEngine();
-updateActionPreview();
 </script>
 
 </body>
