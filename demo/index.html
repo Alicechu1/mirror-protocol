@@ -528,6 +528,240 @@
     box-shadow: 0 6px 24px rgba(239, 68, 68, 0.4);
   }
 
+  /* ===== Drift Gauge (Circular Progress) ===== */
+  .drift-gauge-container {
+    background: #0f0f1a;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #2a2a3a;
+    text-align: center;
+  }
+
+  .drift-gauge-title {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .drift-gauge-svg {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto;
+    display: block;
+  }
+
+  .gauge-bg {
+    fill: none;
+    stroke: #1a1a2e;
+    stroke-width: 10;
+  }
+
+  .gauge-progress {
+    fill: none;
+    stroke-width: 10;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                stroke 0.4s ease;
+    transform: rotate(-90deg);
+    transform-origin: center;
+  }
+
+  .gauge-center-group {
+    transition: all 0.3s ease;
+  }
+
+  .gauge-value {
+    font-size: 28px;
+    font-weight: 800;
+    fill: #fff;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    font-family: inherit;
+  }
+
+  .gauge-level {
+    font-size: 10px;
+    fill: #888;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    font-family: inherit;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .gauge-glow {
+    filter: drop-shadow(0 0 6px currentColor);
+    transition: filter 0.4s ease;
+  }
+
+  /* ===== Enhanced Timeline Events ===== */
+  .timeline-metrics {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+    font-size: 11px;
+    font-family: monospace;
+  }
+
+  .timeline-metric {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #666;
+  }
+
+  .timeline-metric-val {
+    font-weight: 700;
+    color: #888;
+  }
+
+  .timeline-metric-val.deviation-normal { color: #10b981; }
+  .timeline-metric-val.deviation-warning { color: #f59e0b; }
+  .timeline-metric-val.deviation-critical { color: #ef4444; }
+
+  .timeline-metric-val.contribution {
+    color: #667eea;
+  }
+
+  /* ===== Algorithm Details Panel ===== */
+  .algo-panel {
+    margin-top: 20px;
+    background: #0f0f1a;
+    border-radius: 12px;
+    border: 1px solid #2a2a3a;
+    overflow: hidden;
+  }
+
+  .algo-panel-header {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+  }
+
+  .algo-panel-header:hover {
+    background: #141425;
+  }
+
+  .algo-panel-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #d0d0e0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .algo-panel-icon {
+    font-size: 14px;
+    color: #667eea;
+  }
+
+  .algo-panel-toggle {
+    font-size: 12px;
+    color: #666;
+    transition: transform 0.3s;
+  }
+
+  .algo-panel.open .algo-panel-toggle {
+    transform: rotate(180deg);
+  }
+
+  .algo-panel-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+  }
+
+  .algo-panel.open .algo-panel-body {
+    max-height: 600px;
+  }
+
+  .algo-panel-content {
+    padding: 0 20px 20px;
+    border-top: 1px solid #1a1a2e;
+  }
+
+  .algo-formula {
+    background: #0a0a14;
+    border: 1px solid #2a2a3a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #a5b4fc;
+    margin: 12px 0;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+
+  .algo-section {
+    margin: 14px 0;
+  }
+
+  .algo-section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .algo-section-body {
+    font-size: 12px;
+    color: #888;
+    line-height: 1.6;
+  }
+
+  .algo-thresholds {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .algo-threshold-item {
+    flex: 1;
+    min-width: 80px;
+    background: #0a0a14;
+    border: 1px solid #2a2a3a;
+    border-radius: 6px;
+    padding: 8px;
+    text-align: center;
+  }
+
+  .algo-threshold-label {
+    font-size: 10px;
+    color: #666;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .algo-threshold-value {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .algo-threshold-value.normal { color: #10b981; }
+  .algo-threshold-value.warning { color: #f59e0b; }
+  .algo-threshold-value.critical { color: #ef4444; }
+
+  .algo-patent {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #1a1a2e;
+    font-size: 11px;
+    color: #555;
+    text-align: center;
+    font-style: italic;
+  }
+
   .chain-load-btn {
     padding: 6px 14px;
     background: linear-gradient(135deg, #10b981, #059669);
@@ -2474,14 +2708,25 @@
         </div>
       </div>
 
-      <!-- Drift Score + Controls -->
+      <!-- Drift Gauge + Controls -->
       <div class="drift-score-panel">
-        <div class="drift-score-container">
-          <div class="drift-score-label">Drift Score</div>
-          <div class="drift-score-number" id="driftScore">12</div>
-          <div class="drift-score-bar">
-            <div class="drift-score-fill" id="driftScoreFill" style="width: 12%"></div>
-          </div>
+        <div class="drift-gauge-container">
+          <div class="drift-gauge-title">Drift Index</div>
+          <svg class="drift-gauge-svg" id="driftGauge" viewBox="0 0 140 140">
+            <!-- Background ring -->
+            <circle class="gauge-bg" cx="70" cy="70" r="55" />
+            <!-- Progress ring -->
+            <circle class="gauge-progress gauge-glow" id="gaugeProgress" 
+              cx="70" cy="70" r="55" 
+              stroke-dasharray="345.58" 
+              stroke-dashoffset="345.58"
+              stroke="#10b981" />
+            <!-- Center text -->
+            <g class="gauge-center-group">
+              <text class="gauge-value" id="gaugeValue" x="70" y="62">0</text>
+              <text class="gauge-level" id="gaugeLevel" x="70" y="82">NORMAL</text>
+            </g>
+          </svg>
           <div class="drift-score-status" id="driftStatus">
             <span class="status-dot status-healthy"></span> Within Baseline
           </div>
@@ -2517,6 +2762,72 @@
       <div class="drift-timeline" id="driftTimeline">
         <div class="timeline-placeholder">
           Click "Start Drift Simulation" to see agent behavior evolve over time
+        </div>
+      </div>
+    </div>
+
+    <!-- Algorithm Details Panel -->
+    <div class="algo-panel" id="algoPanel">
+      <div class="algo-panel-header" onclick="toggleAlgorithmPanel()">
+        <div class="algo-panel-title">
+          <span class="algo-panel-icon">⚙</span> Algorithm Details
+        </div>
+        <div class="algo-panel-toggle">▼</div>
+      </div>
+      <div class="algo-panel-body">
+        <div class="algo-panel-content">
+          <div class="algo-section">
+            <div class="algo-section-title">EWMA Drift Index</div>
+            <div class="algo-formula">drift<sub>t</sub> = α × deviation<sub>t</sub> + (1-α) × drift<sub>t-1</sub></div>
+            <div class="algo-section-body">
+              Exponentially Weighted Moving Average — recent actions have higher weight.
+              Smoothing factor <strong>α = 0.3</strong> balances responsiveness with stability.
+            </div>
+          </div>
+
+          <div class="algo-section">
+            <div class="algo-section-title">Three-Tier Warning System</div>
+            <div class="algo-thresholds">
+              <div class="algo-threshold-item">
+                <div class="algo-threshold-label">Normal</div>
+                <div class="algo-threshold-value normal">&lt; 0.30</div>
+              </div>
+              <div class="algo-threshold-item">
+                <div class="algo-threshold-label">Warning</div>
+                <div class="algo-threshold-value warning">0.30 – 0.60</div>
+              </div>
+              <div class="algo-threshold-item">
+                <div class="algo-threshold-label">Critical</div>
+                <div class="algo-threshold-value critical">&gt; 0.60</div>
+              </div>
+            </div>
+            <div class="algo-section-body" style="margin-top:8px;">
+              Critical threshold triggers <strong>Circuit Breaker</strong> — automatic agent halt.
+              Consecutive breaches accelerate the drift index (+0.05 per breach).
+            </div>
+          </div>
+
+          <div class="algo-section">
+            <div class="algo-section-title">Danger Pair Detection</div>
+            <div class="algo-section-body">
+              When two high-risk dimensions simultaneously exceed baseline, 
+              the deviation score gets a weighted penalty (up to +20%). 
+              This catches correlated risk escalation that single-dimension monitoring would miss.
+            </div>
+          </div>
+
+          <div class="algo-section">
+            <div class="algo-section-title">Consecutive Breach Acceleration</div>
+            <div class="algo-section-body">
+              Each consecutive deviation above the warning threshold increments the breach counter.
+              The adjusted drift index incorporates this momentum signal — persistent deviation 
+              escalates faster than one-off spikes.
+            </div>
+          </div>
+
+          <div class="algo-patent">
+            Patent Pending — Baseline Drift Detection Engine
+          </div>
         </div>
       </div>
     </div>
@@ -2858,7 +3169,11 @@ const SCENARIOS = {
     step7Desc: 'Agent-to-Agent Zero-Knowledge Trust Establishment for DeFi. Watch two trading agents establish a secure channel using ZK proofs.',
     driftRadarTitle: '6-Dimension Baseline Radar',
     breakerDetail: 'Risk tolerance deviation: 42%',
-    l5Example: 'DeFi trade attestations on Monad'
+    l5Example: 'DeFi trade attestations on Monad',
+    dangerPairs: [
+      { dimA: 1, dimB: 2, name: 'High Risk + High Concentration', penalty: 0.20 },
+      { dimA: 0, dimB: 1, name: 'Large Position + High Risk', penalty: 0.15 }
+    ]
   },
   datacompliance: {
     id: 'datacompliance',
@@ -2898,7 +3213,11 @@ const SCENARIOS = {
     step7Desc: 'Agent-to-Agent Zero-Knowledge Trust Establishment for data compliance. Watch two data agents establish a secure channel using ZK proofs.',
     driftRadarTitle: '6-Dimension Compliance Radar',
     breakerDetail: 'Data sensitivity deviation: 42% — access scope exceeded',
-    l5Example: 'Data access audit trail on Monad'
+    l5Example: 'Data access audit trail on Monad',
+    dangerPairs: [
+      { dimA: 0, dimB: 1, name: 'High Sensitivity + Wide Access', penalty: 0.20 },
+      { dimA: 0, dimB: 3, name: 'Sensitive Data + Extended Retention', penalty: 0.15 }
+    ]
   },
   a2a: {
     id: 'a2a',
@@ -2938,7 +3257,11 @@ const SCENARIOS = {
     step7Desc: 'Agent-to-Agent Zero-Knowledge Trust Establishment. Watch two agents establish a secure interaction channel using ZK proofs — the core of MIRROR\'s protocol layer network effect.',
     driftRadarTitle: '6-Dimension Trust Radar',
     breakerDetail: 'Autonomy level deviation: 42% — trust boundary exceeded',
-    l5Example: 'A2A interaction attestations on Monad'
+    l5Example: 'A2A interaction attestations on Monad',
+    dangerPairs: [
+      { dimA: 1, dimB: 2, name: 'High Autonomy + High Resource Access', penalty: 0.20 },
+      { dimA: 0, dimB: 1, name: 'Sensitive Data + High Autonomy', penalty: 0.15 }
+    ]
   }
 };
 
@@ -3503,6 +3826,11 @@ function resetDriftForScenario() {
   // Set scenario-specific drift templates
   driftEventTemplates = DRIFT_TEMPLATES[currentScenario] || DRIFT_TEMPLATES.finance;
 
+  // Reset drift engine
+  if (driftEngine) {
+    driftEngine.reset();
+  }
+
   driftRunning = false;
   if (driftTimer) {
     clearTimeout(driftTimer);
@@ -3512,6 +3840,9 @@ function resetDriftForScenario() {
   driftAlerts = 0;
   driftBreakers = 0;
   driftIndex = 0;
+  driftEventQueue = [];
+  driftQueueIndex = 0;
+  breakerTriggered = false;
 
   document.getElementById('driftEvents').textContent = '0';
   document.getElementById('driftAlerts').textContent = '0';
@@ -3531,7 +3862,13 @@ function resetDriftForScenario() {
   document.getElementById('circuitBreakerOverlay').classList.remove('active');
 
   updateRadar();
-  updateDriftScore();
+  if (typeof updateDriftGauge === 'function') {
+    updateDriftGauge(0, 'normal');
+  }
+  const statusEl = document.getElementById('driftStatus');
+  if (statusEl) {
+    statusEl.innerHTML = '<span class="status-dot status-healthy"></span> Within Baseline';
+  }
 }
 
 // ============ UI Helpers ============
@@ -4277,6 +4614,176 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// ============ DriftEngine — Baseline Drift Detection Algorithm ============
+class DriftEngine {
+  constructor(alpha = 0.3) {
+    this.alpha = alpha; // EWMA smoothing factor
+    this.driftIndex = 0; // Current drift index (0-1)
+    this.history = []; // History of deviation records
+    this.warningThreshold = 0.3; // Warning threshold
+    this.criticalThreshold = 0.6; // Critical threshold
+    this.breachCount = 0; // Consecutive breach count
+  }
+
+  // Compute deviation score for a single action (0-1)
+  // actionVector: 6-dim action vector (0-100 scale)
+  // baselineVector: 6-dim baseline vector (0-100 scale)
+  // dangerPairs: array of { dimA, dimB, name, penalty } for scenario
+  computeDeviation(actionVector, baselineVector, dangerPairs) {
+    let totalDeviation = 0;
+    const perDimDeviation = [];
+    for (let i = 0; i < 6; i++) {
+      const diff = Math.max(0, actionVector[i] - baselineVector[i]);
+      const normalizedDiff = diff / 100; // normalize to 0-1
+      perDimDeviation.push(normalizedDiff);
+      totalDeviation += normalizedDiff;
+    }
+    let deviation = totalDeviation / 6; // 6-dim average
+
+    // Danger pair detection — extra penalty when specific dimensions both exceed baseline
+    let dangerPairHit = null;
+    if (dangerPairs && dangerPairs.length > 0) {
+      for (const pair of dangerPairs) {
+        const devA = perDimDeviation[pair.dimA];
+        const devB = perDimDeviation[pair.dimB];
+        // Both dimensions show meaningful deviation (>5% above baseline)
+        if (devA > 0.05 && devB > 0.05) {
+          const combinedBonus = pair.penalty * Math.min(1, (devA + devB) / 2);
+          deviation += combinedBonus;
+          dangerPairHit = pair.name;
+          break; // only apply the first matching pair's penalty
+        }
+      }
+    }
+
+    return {
+      deviation: Math.min(1, deviation),
+      perDimDeviation,
+      dangerPairHit
+    };
+  }
+
+  // Update drift index using EWMA
+  update(actionVector, baselineVector, dangerPairs) {
+    const { deviation, perDimDeviation, dangerPairHit } = this.computeDeviation(
+      actionVector, baselineVector, dangerPairs
+    );
+    const prevDriftIndex = this.driftIndex;
+    this.driftIndex = this.alpha * deviation + (1 - this.alpha) * this.driftIndex;
+    const contribution = this.driftIndex - prevDriftIndex;
+
+    this.history.push({
+      deviation,
+      driftIndex: this.driftIndex,
+      contribution,
+      perDimDeviation,
+      dangerPairHit,
+      timestamp: Date.now(),
+      actionVector: [...actionVector],
+    });
+
+    // Update consecutive breach count
+    if (deviation > this.warningThreshold) {
+      this.breachCount++;
+    } else {
+      this.breachCount = Math.max(0, this.breachCount - 0.5);
+    }
+
+    return {
+      deviation,
+      driftIndex: this.driftIndex,
+      contribution,
+      perDimDeviation,
+      dangerPairHit,
+      level: this.getLevel(),
+      breachCount: this.breachCount,
+    };
+  }
+
+  // Get current alert level
+  getLevel() {
+    // Combine drift index + consecutive breaches
+    const adjustedIndex = this.driftIndex + this.breachCount * 0.05;
+    if (adjustedIndex >= this.criticalThreshold) return 'critical';
+    if (adjustedIndex >= this.warningThreshold) return 'warning';
+    return 'normal';
+  }
+
+  // Get which dimensions are currently elevated
+  getElevatedDims(baselineVector, actionVector) {
+    const elevated = [];
+    for (let i = 0; i < 6; i++) {
+      const diff = Math.max(0, actionVector[i] - baselineVector[i]);
+      if (diff / 100 > 0.1) {
+        elevated.push({ index: i, deviation: diff / 100 });
+      }
+    }
+    return elevated.sort((a, b) => b.deviation - a.deviation);
+  }
+
+  reset() {
+    this.driftIndex = 0;
+    this.history = [];
+    this.breachCount = 0;
+  }
+}
+
+// Global drift engine instance
+let driftEngine = new DriftEngine(0.3);
+
+// ===== Drift Gauge rendering =====
+const GAUGE_CIRCUMFERENCE = 2 * Math.PI * 55; // radius = 55
+
+function getLevelColor(level) {
+  if (level === 'critical') return '#ef4444';
+  if (level === 'warning') return '#f59e0b';
+  return '#10b981';
+}
+
+function getLevelText(level) {
+  if (level === 'critical') return 'CRITICAL';
+  if (level === 'warning') return 'WARNING';
+  return 'NORMAL';
+}
+
+function initDriftGauge() {
+  const svg = document.getElementById('driftGauge');
+  if (!svg) return;
+  // Initialize with 0 value
+  updateDriftGauge(0, 'normal');
+}
+
+function updateDriftGauge(value, level) {
+  const progressEl = document.getElementById('gaugeProgress');
+  const valueEl = document.getElementById('gaugeValue');
+  const levelEl = document.getElementById('gaugeLevel');
+  if (!progressEl) return;
+
+  const color = getLevelColor(level);
+  const offset = GAUGE_CIRCUMFERENCE * (1 - Math.min(value, 1));
+
+  progressEl.style.strokeDasharray = GAUGE_CIRCUMFERENCE;
+  progressEl.style.strokeDashoffset = offset;
+  progressEl.style.stroke = color;
+  progressEl.style.color = color;
+
+  if (valueEl) {
+    valueEl.textContent = (value * 100).toFixed(0);
+    valueEl.style.fill = color;
+  }
+  if (levelEl) {
+    levelEl.textContent = getLevelText(level);
+  }
+}
+
+// ===== Algorithm panel toggle =====
+function toggleAlgorithmPanel() {
+  const panel = document.getElementById('algoPanel');
+  if (panel) {
+    panel.classList.toggle('open');
+  }
+}
+
 // ============ Baseline Drift Monitor ============
 let driftRunning = false;
 let driftEvents = 0;
@@ -4284,6 +4791,9 @@ let driftAlerts = 0;
 let driftBreakers = 0;
 let driftTimer = null;
 let driftIndex = 0;
+let driftEventQueue = []; // pre-generated event queue for simulation
+let driftQueueIndex = 0;
+let breakerTriggered = false;
 
 // 6 dimensions: values are 0-1 (1 = max deviation outward)
 // Initialized to finance scenario defaults, updated on scenario switch
@@ -4316,38 +4826,21 @@ function updateRadar() {
   document.getElementById('behaviorPolygon').setAttribute('points', buildPolygonPoints(currentValues));
 }
 
-function computeDriftScore() {
-  let totalDrift = 0;
-  for (let i = 0; i < baselineValues.length; i++) {
-    const diff = Math.abs(currentValues[i] - baselineValues[i]);
-    totalDrift += diff;
-  }
-  return Math.round((totalDrift / baselineValues.length) * 200);
-}
-
-function updateDriftScore() {
-  const score = computeDriftScore();
-  const scoreEl = document.getElementById('driftScore');
-  const fillEl = document.getElementById('driftScoreFill');
+// Update all drift display elements from DriftEngine result
+function updateDriftDisplay(result) {
   const statusEl = document.getElementById('driftStatus');
-  
-  scoreEl.textContent = score;
-  fillEl.style.width = Math.min(score, 100) + '%';
-  
-  scoreEl.classList.remove('warning', 'danger');
+
+  // Update gauge
+  updateDriftGauge(result.driftIndex, result.level);
+
+  // Update status text
   statusEl.innerHTML = '';
-  
-  if (score < 25) {
+  if (result.level === 'normal') {
     statusEl.innerHTML = '<span class="status-dot status-healthy"></span> Within Baseline';
-  } else if (score < 50) {
-    scoreEl.classList.add('warning');
-    statusEl.innerHTML = '<span class="status-dot status-warning"></span> Mild Drift Detected';
-  } else if (score < 70) {
-    scoreEl.classList.add('warning');
-    statusEl.innerHTML = '<span class="status-dot status-warning"></span> Significant Drift';
+  } else if (result.level === 'warning') {
+    statusEl.innerHTML = '<span class="status-dot status-warning"></span> Drift Detected — Monitor';
   } else {
-    scoreEl.classList.add('danger');
-    statusEl.innerHTML = '<span class="status-dot status-danger"></span> CRITICAL — Circuit Breaker';
+    statusEl.innerHTML = '<span class="status-dot status-danger"></span> CRITICAL — Breaker Active';
   }
 }
 
@@ -4401,116 +4894,266 @@ const DRIFT_TEMPLATES = {
 // Current drift templates (set by scenario)
 let driftEventTemplates = DRIFT_TEMPLATES.finance;
 
-function addTimelineEvent(index) {
-  const tmpl = driftEventTemplates[index % driftEventTemplates.length];
+// Add enhanced timeline event with deviation metrics
+function addTimelineEvent(eventData, result) {
   const timeline = document.getElementById('driftTimeline');
-  
+
   // Remove placeholder if present
   const placeholder = timeline.querySelector('.timeline-placeholder');
   if (placeholder) placeholder.remove();
-  
+
   const time = new Date();
   const timeStr = time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  
-  const badgeClass = tmpl.type === 'ok' ? 'badge-ok' : tmpl.type === 'alert' ? 'badge-alert' : 'badge-breaker';
-  const badgeText = tmpl.type === 'ok' ? 'OK' : tmpl.type === 'alert' ? 'Alert' : 'Breaker';
-  
+
+  const level = result.level;
+  // Map level to existing CSS class names
+  const eventClass = level === 'normal' ? 'ok' : level === 'warning' ? 'alert' : 'breaker';
+  const badgeClass = level === 'normal' ? 'badge-ok' : level === 'warning' ? 'badge-alert' : 'badge-breaker';
+  const badgeText = level === 'normal' ? 'OK' : level === 'warning' ? 'Alert' : 'Breaker';
+
+  const devClass = level === 'normal' ? 'deviation-normal' : level === 'warning' ? 'deviation-warning' : 'deviation-critical';
+  const deviationStr = result.deviation.toFixed(3);
+  const contributionStr = (result.contribution >= 0 ? '↑' : '↓') + Math.abs(result.contribution).toFixed(3);
+
+  let dangerPairHtml = '';
+  if (result.dangerPairHit) {
+    dangerPairHtml = `<div class="timeline-detail" style="color:#f59e0b; margin-top:2px;">⚠ Danger pair: ${result.dangerPairHit}</div>`;
+  }
+
   const eventEl = document.createElement('div');
-  eventEl.className = `timeline-event ${tmpl.type}`;
+  eventEl.className = `timeline-event ${eventClass}`;
   eventEl.innerHTML = `
     <div class="timeline-time">${timeStr}</div>
     <div class="timeline-content">
-      <div class="timeline-action">${tmpl.action} <span class="timeline-badge ${badgeClass}">${badgeText}</span></div>
-      <div class="timeline-detail">${tmpl.detail}</div>
+      <div class="timeline-action">${eventData.action} <span class="timeline-badge ${badgeClass}">${badgeText}</span></div>
+      <div class="timeline-detail">${eventData.detail}</div>
+      ${dangerPairHtml}
+      <div class="timeline-metrics">
+        <div class="timeline-metric">
+          <span>Deviation:</span>
+          <span class="timeline-metric-val ${devClass}">${deviationStr}</span>
+        </div>
+        <div class="timeline-metric">
+          <span>Drift Δ:</span>
+          <span class="timeline-metric-val contribution">${contributionStr}</span>
+        </div>
+        <div class="timeline-metric">
+          <span>Index:</span>
+          <span class="timeline-metric-val ${devClass}">${result.driftIndex.toFixed(3)}</span>
+        </div>
+      </div>
     </div>
   `;
-  
+
   timeline.insertBefore(eventEl, timeline.firstChild);
-  
+
   // Update stats
   driftEvents++;
   document.getElementById('driftEvents').textContent = driftEvents;
-  
-  if (tmpl.type === 'alert') {
+
+  if (level === 'warning') {
     driftAlerts++;
     document.getElementById('driftAlerts').textContent = driftAlerts;
   }
-  
-  if (tmpl.type === 'breaker') {
+
+  if (level === 'critical') {
     driftBreakers++;
     document.getElementById('driftBreakers').textContent = driftBreakers;
   }
 }
 
-function triggerCircuitBreaker(detail) {
+// Trigger circuit breaker with real drift data
+function triggerCircuitBreaker(result, elevatedDims) {
   const overlay = document.getElementById('circuitBreakerOverlay');
-  document.getElementById('breakerDetail').textContent = detail;
-  
+
+  // Build detail string with real data
+  const dimDescs = elevatedDims.slice(0, 2).map(d => {
+    const dimLabel = SCENARIOS[currentScenario].dimensions[d.index].label;
+    return `${dimLabel} +${(d.deviation * 100).toFixed(0)}%`;
+  }).join('; ');
+
+  const detailText = `Drift Index: ${(result.driftIndex * 100).toFixed(1)} — ${dimDescs}`;
+  document.getElementById('breakerDetail').textContent = detailText;
+
+  // Update subtitle with breach count
+  const subtitleEl = overlay.querySelector('.breaker-subtitle');
+  if (subtitleEl) {
+    subtitleEl.textContent = `${Math.floor(result.breachCount)} consecutive breaches — Circuit Breaker activated`;
+  }
+
   // Reset flash animation
   const flash = overlay.querySelector('.breaker-flash');
   flash.style.animation = 'none';
   flash.offsetHeight; // trigger reflow
   flash.style.animation = '';
-  
+
   overlay.classList.add('active');
+  breakerTriggered = true;
 }
 
 function dismissBreaker() {
   document.getElementById('circuitBreakerOverlay').classList.remove('active');
 }
 
+// Generate a realistic drift event queue (8-12 events)
+// Phase 1: normal (deviation < 0.2)
+// Phase 2: escalating (deviation 0.2-0.5)
+// Phase 3: critical (deviation > 0.5) → triggers breaker
+function generateDriftEventQueue() {
+  const s = SCENARIOS[currentScenario];
+  const baseline = s.defaultBaseline;
+  const templates = driftEventTemplates;
+  const queue = [];
+
+  // Total events: 8-12
+  const totalEvents = 8 + Math.floor(Math.random() * 5);
+  const phase1Count = 3 + Math.floor(Math.random() * 2); // 3-4 normal
+  const phase2Count = 3 + Math.floor(Math.random() * 2); // 3-4 escalating
+  const phase3Count = Math.max(2, totalEvents - phase1Count - phase2Count); // 2-4 critical
+
+  // Helper: generate action vector with controlled deviation
+  function makeActionVector(targetDeviation, dimFocus = -1) {
+    const action = [...baseline];
+    // If specific dimension focus, push that dimension harder
+    if (dimFocus >= 0) {
+      const excess = targetDeviation * 100 * 3; // concentrate on 1 dim (3x since avg of 6)
+      action[dimFocus] = Math.min(95, baseline[dimFocus] + excess);
+      // small push on other dims
+      for (let i = 0; i < 6; i++) {
+        if (i !== dimFocus) {
+          action[i] = Math.min(95, baseline[i] + targetDeviation * 100 * 0.3);
+        }
+      }
+    } else {
+      // Spread deviation across all dimensions
+      for (let i = 0; i < 6; i++) {
+        const variation = 0.7 + Math.random() * 0.6; // 0.7-1.3x
+        action[i] = Math.min(95, baseline[i] + targetDeviation * 100 * variation);
+      }
+    }
+    return action;
+  }
+
+  // Phase 1: Normal events (templates 0-3)
+  for (let i = 0; i < phase1Count; i++) {
+    const tmplIdx = i % Math.min(4, templates.length);
+    const tmpl = templates[tmplIdx];
+    const targetDev = 0.05 + Math.random() * 0.12; // 0.05-0.17
+    const dimFocus = tmpl.dimension !== undefined ? tmpl.dimension : -1;
+    const actionVector = makeActionVector(targetDev, dimFocus);
+    queue.push({
+      action: tmpl.action,
+      detail: tmpl.detail,
+      actionVector,
+      phase: 1
+    });
+  }
+
+  // Phase 2: Escalating events (alert templates)
+  const alertTemplates = templates.filter(t => t.type === 'alert' || t.dimension >= 0);
+  for (let i = 0; i < phase2Count; i++) {
+    const tmplIdx = i % Math.max(1, alertTemplates.length);
+    const tmpl = alertTemplates[tmplIdx] || templates[4];
+    const targetDev = 0.2 + (i / phase2Count) * 0.3 + Math.random() * 0.08; // 0.2-0.58
+    const dimFocus = tmpl.dimension !== undefined ? tmpl.dimension : i % 6;
+    const actionVector = makeActionVector(targetDev, dimFocus);
+    queue.push({
+      action: tmpl.action,
+      detail: tmpl.detail,
+      actionVector,
+      phase: 2
+    });
+  }
+
+  // Phase 3: Critical events (breaker templates)
+  const breakerTemplates = templates.filter(t => t.type === 'breaker' && t.action.indexOf('Circuit Breaker') === -1);
+  for (let i = 0; i < phase3Count; i++) {
+    const tmplIdx = i % Math.max(1, breakerTemplates.length);
+    const tmpl = breakerTemplates[tmplIdx] || templates[templates.length - 2];
+    const targetDev = 0.55 + (i / phase3Count) * 0.3 + Math.random() * 0.08; // 0.55-0.93
+    const dimFocus = tmpl.dimension !== undefined && tmpl.dimension >= 0 ? tmpl.dimension : 1;
+    const actionVector = makeActionVector(targetDev, dimFocus);
+    queue.push({
+      action: tmpl.action,
+      detail: tmpl.detail,
+      actionVector,
+      phase: 3
+    });
+  }
+
+  return queue;
+}
+
 function startDriftSimulation() {
   if (driftRunning) return;
-  
+
   const btn = document.getElementById('driftPlayBtn');
   btn.textContent = '⏸ Simulating...';
   btn.disabled = true;
   driftRunning = true;
-  
-  driftIndex = 0;
-  
+  breakerTriggered = false;
+
+  // Reset engine for fresh simulation
+  driftEngine.reset();
+  currentValues = [...baselineValues];
+
+  // Generate event queue
+  driftEventQueue = generateDriftEventQueue();
+  driftQueueIndex = 0;
+
   function nextEvent() {
-    if (driftIndex >= driftEventTemplates.length) {
+    if (!driftRunning) return;
+    if (driftQueueIndex >= driftEventQueue.length) {
       driftRunning = false;
       btn.textContent = '▶ Restart Simulation';
       btn.disabled = false;
       return;
     }
-    
-    const tmpl = driftEventTemplates[driftIndex];
-    
-    // Apply drift to a specific dimension or spread it
-    if (tmpl.dimension >= 0) {
-      currentValues[tmpl.dimension] = Math.min(currentValues[tmpl.dimension] + tmpl.delta, 0.95);
-    } else if (tmpl.delta > 0) {
-      // Spread across all dimensions
-      for (let i = 0; i < currentValues.length; i++) {
-        currentValues[i] = Math.min(currentValues[i] + tmpl.delta, 0.95);
-      }
-    }
-    
+
+    const eventData = driftEventQueue[driftQueueIndex];
+    const baseline100 = SCENARIOS[currentScenario].defaultBaseline;
+    const dangerPairs = SCENARIOS[currentScenario].dangerPairs;
+
+    // Update DriftEngine with real action vector (0-100 scale)
+    const result = driftEngine.update(eventData.actionVector, baseline100, dangerPairs);
+
+    // Update radar chart (normalize 0-100 → 0-1)
+    currentValues = eventData.actionVector.map(v => v / 100);
     updateRadar();
-    updateDriftScore();
-    addTimelineEvent(driftIndex);
-    
-    // Trigger circuit breaker on breaker-type events
-    if (tmpl.type === 'breaker' && tmpl.action !== 'Circuit Breaker Activated') {
+
+    // Update gauge + status
+    updateDriftDisplay(result);
+
+    // Add timeline event
+    addTimelineEvent(eventData, result);
+
+    // Trigger circuit breaker when level becomes critical (first time only)
+    if (result.level === 'critical' && !breakerTriggered) {
+      const elevatedDims = driftEngine.getElevatedDims(baseline100, eventData.actionVector);
       setTimeout(() => {
-        triggerCircuitBreaker(tmpl.detail);
-      }, 300);
+        triggerCircuitBreaker(result, elevatedDims);
+      }, 400);
     }
-    
-    driftIndex++;
-    
-    if (driftIndex < driftEventTemplates.length) {
-      driftTimer = setTimeout(nextEvent, 1200 + Math.random() * 600);
+
+    driftQueueIndex++;
+
+    // Continue if more events and not halted by breaker
+    if (driftQueueIndex < driftEventQueue.length && !breakerTriggered) {
+      driftTimer = setTimeout(nextEvent, 800 + Math.random() * 400);
+    } else if (breakerTriggered) {
+      // After breaker, add one final "breaker activated" summary event
+      setTimeout(() => {
+        driftRunning = false;
+        btn.textContent = '▶ Restart Simulation';
+        btn.disabled = false;
+      }, 500);
     } else {
       driftRunning = false;
       btn.textContent = '▶ Restart Simulation';
       btn.disabled = false;
     }
   }
-  
+
   nextEvent();
 }
 
@@ -4520,28 +5163,36 @@ function resetDriftSimulation() {
     clearTimeout(driftTimer);
     driftTimer = null;
   }
-  
+
+  driftEngine.reset();
   currentValues = [...baselineValues];
   driftEvents = 0;
   driftAlerts = 0;
   driftBreakers = 0;
   driftIndex = 0;
-  
+  driftEventQueue = [];
+  driftQueueIndex = 0;
+  breakerTriggered = false;
+
   document.getElementById('driftEvents').textContent = '0';
   document.getElementById('driftAlerts').textContent = '0';
   document.getElementById('driftBreakers').textContent = '0';
-  
+
   const timeline = document.getElementById('driftTimeline');
   timeline.innerHTML = '<div class="timeline-placeholder">Click "Start Drift Simulation" to see agent behavior evolve over time</div>';
-  
+
   const btn = document.getElementById('driftPlayBtn');
   btn.textContent = '▶ Start Drift Simulation';
   btn.disabled = false;
-  
+
   document.getElementById('circuitBreakerOverlay').classList.remove('active');
-  
+
   updateRadar();
-  updateDriftScore();
+  updateDriftGauge(0, 'normal');
+  const statusEl = document.getElementById('driftStatus');
+  if (statusEl) {
+    statusEl.innerHTML = '<span class="status-dot status-healthy"></span> Within Baseline';
+  }
 }
 
 // ============ 5-Layer Architecture Interaction ============
@@ -4614,7 +5265,8 @@ document.addEventListener('DOMContentLoaded', () => {
   updateRadarLabels();
   // Initialize radar
   updateRadar();
-  updateDriftScore();
+  // Initialize drift gauge
+  initDriftGauge();
   // Update architecture L5
   updateArchitectureL5();
   // Initialize action preview
